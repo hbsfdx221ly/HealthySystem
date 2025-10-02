@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据分析报告 - 智能健康管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .hero-title {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .analytics-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .analytics-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .trend-up {
+            color: #10b981;
+        }
+        .trend-down {
+            color: #ef4444;
+        }
+        .trend-stable {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">智能健康管理</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据仪表板</a>
+                    <a href="prediction.html" class="text-gray-600 hover:text-blue-600 transition-colors">疾病预测</a>
+                    <a href="management.html" class="text-gray-600 hover:text-blue-600 transition-colors">健康管理</a>
+                    <a href="analytics.html" class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">数据分析</a>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-600 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h1 class="hero-title text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    健康数据分析
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    深度分析您的健康数据趋势，提供全面的健康洞察和预测性分析
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Filters -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium text-gray-700">时间范围:</span>
+                    <button class="filter-btn active" data-filter="week">最近一周</button>
+                    <button class="filter-btn" data-filter="month">最近一月</button>
+                    <button class="filter-btn" data-filter="quarter">最近三月</button>
+                    <button class="filter-btn" data-filter="year">最近一年</button>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium text-gray-700">数据类型:</span>
+                    <select id="data-type-filter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">全部数据</option>
+                        <option value="vital">生命体征</option>
+                        <option value="exercise">运动数据</option>
+                        <option value="nutrition">营养数据</option>
+                        <option value="sleep">睡眠数据</option>
+                    </select>
+                </div>
+                
+                <button id="generate-report" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    生成报告
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Metrics -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">关键指标概览</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="metric-card">
+                <div class="text-3xl mb-2">❤️</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">平均血压</h3>
+                <div class="text-2xl font-bold text-blue-600 mb-2">118/78</div>
+                <div class="flex items-center text-sm">
+                    <span class="trend-down">↓ 3.2%</span>
+                    <span class="text-gray-500 ml-1">vs 上月</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="text-3xl mb-2">🩸</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">平均血糖</h3>
+                <div class="text-2xl font-bold text-green-600 mb-2">5.7</div>
+                <div class="flex items-center text-sm">
+                    <span class="trend-stable">→ 0.1%</span>
+                    <span class="text-gray-500 ml-1">vs 上月</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="text-3xl mb-2">⚖️</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">体重变化</h3>
+                <div class="text-2xl font-bold text-orange-600 mb-2">-2.3kg</div>
+                <div class="flex items-center text-sm">
+                    <span class="trend-up">↑ 8.5%</span>
+                    <span class="text-gray-500 ml-1">减重进度</span>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="text-3xl mb-2">😴</div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">睡眠质量</h3>
+                <div class="text-2xl font-bold text-purple-600 mb-2">85%</div>
+                <div class="flex items-center text-sm">
+                    <span class="trend-up">↑ 5.1%</span>
+                    <span class="text-gray-500 ml-1">vs 上月</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Health Trends -->
+            <div class="analytics-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">健康指标趋势</h3>
+                <div id="health-trends-chart" style="height: 300px;"></div>
+            </div>
+            
+            <!-- Risk Analysis -->
+            <div class="analytics-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">风险因素分析</h3>
+                <div id="risk-analysis-chart" style="height: 300px;"></div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Health Radar -->
+            <div class="analytics-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">健康雷达图</h3>
+                <div id="health-radar-chart" style="height: 300px;"></div>
+            </div>
+            
+            <!-- Data Heatmap -->
+            <div class="analytics-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">健康数据热力图</h3>
+                <div id="health-heatmap-chart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Analysis -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">详细分析报告</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cardiovascular Analysis -->
+            <div class="analytics-card">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">❤️</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">心血管系统</h3>
+                        <p class="text-sm text-gray-600">整体评分: 良好</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">血压控制</span>
+                        <span class="text-sm font-medium text-green-600">良好</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">心率变异性</span>
+                        <span class="text-sm font-medium text-blue-600">正常</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">血管弹性</span>
+                        <span class="text-sm font-medium text-orange-600">需改善</span>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-sm text-gray-700">
+                        <strong>建议:</strong> 继续保持良好的血压控制，增加有氧运动频率以改善血管弹性。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Metabolic Analysis -->
+            <div class="analytics-card">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">🩸</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">代谢系统</h3>
+                        <p class="text-sm text-gray-600">整体评分: 优秀</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">血糖控制</span>
+                        <span class="text-sm font-medium text-green-600">优秀</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">胆固醇水平</span>
+                        <span class="text-sm font-medium text-green-600">正常</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">肝功能</span>
+                        <span class="text-sm font-medium text-blue-600">良好</span>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-sm text-gray-700">
+                        <strong>建议:</strong> 代谢指标整体良好，继续保持均衡饮食和规律运动。
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Lifestyle Analysis -->
+            <div class="analytics-card">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <span class="text-2xl">🏃</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">生活方式</h3>
+                        <p class="text-sm text-gray-600">整体评分: 良好</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">运动频率</span>
+                        <span class="text-sm font-medium text-green-600">良好</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">睡眠质量</span>
+                        <span class="text-sm font-medium text-blue-600">改善中</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-700">压力管理</span>
+                        <span class="text-sm font-medium text-orange-600">需关注</span>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-sm text-gray-700">
+                        <strong>建议:</strong> 增加压力管理活动，如冥想或瑜伽，进一步改善睡眠质量。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Predictions and Insights -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">预测与洞察</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Health Predictions -->
+            <div class="analytics-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">健康趋势预测</h3>
+                
+                <div class="space-y-4">
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h4 class="font-medium text-gray-900">3个月预测</h4>
+                        <p class="text-sm text-gray-600 mt-1">
+                            基于当前趋势，您的健康评分预计将提升8-12%，主要得益于体重管理和运动习惯的改善。
+                        </p>
+                        <div class="mt-2">
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">积极趋势</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h4 class="font-medium text-gray-900">6个月预测</h4>
+                        <p class="text-sm text-gray-600 mt-1">
+                            心血管疾病风险预计降低15%，但需要持续关注血糖波动和睡眠质量。
+                        </p>
+                        <div class="mt-2">
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">需要关注</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h4 class="font-medium text-gray-900">1年预测</h4>
+                        <p class="text-sm text-gray-600 mt-1">
+                            如果保持当前改善趋势，整体健康水平将达到同龄人前20%水平。
+                        </p>
+                        <div class="mt-2">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">长期目标</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Insights -->
+            <div class="analytics-card">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">AI智能洞察</h3>
+                
+                <div class="space-y-4">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 mt-1">
+                                <span class="text-white text-sm font-bold">AI</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900 mb-1">运动优化建议</h4>
+                                <p class="text-sm text-gray-700">
+                                    检测到您的运动强度较为单一，建议增加高强度间歇训练(HIIT)来提升心肺功能。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3 mt-1">
+                                <span class="text-white text-sm font-bold">AI</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900 mb-1">营养平衡提醒</h4>
+                                <p class="text-sm text-gray-700">
+                                    您的蛋白质摄入略低于推荐水平，建议增加鱼类、豆制品等优质蛋白质来源。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center mr-3 mt-1">
+                                <span class="text-white text-sm font-bold">AI</span>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900 mb-1">睡眠模式分析</h4>
+                                <p class="text-sm text-gray-700">
+                                    您的深度睡眠比例有提升空间，建议调整睡前习惯，避免蓝光暴露。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Action Recommendations -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">行动建议</h2>
+        
+        <div class="bg-white rounded-xl shadow-sm p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+                    <div class="text-4xl mb-4">📊</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">定期监测</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        建议每周测量血压、血糖，记录体重变化，及时发现异常趋势。
+                    </p>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        设置提醒
+                    </button>
+                </div>
+                
+                <div class="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">目标调整</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        根据当前数据趋势，建议调整运动目标，增加力量训练比例。
+                    </p>
+                    <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        调整目标
+                    </button>
+                </div>
+                
+                <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+                    <div class="text-4xl mb-4">👨‍⚕️</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">专业咨询</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        建议咨询营养师制定个性化饮食计划，优化营养摄入结构。
+                    </p>
+                    <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        预约咨询
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-sm text-gray-500">
+                © 2024 智能健康管理平台. 基于大数据的疾病预测与健康管理解决方案.
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // 数据分析页面特定功能
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAnalyticsCharts();
+            initializeFilters();
+        });
+
+        // 初始化图表
+        function initializeAnalyticsCharts() {
+            // 健康指标趋势图
+            const healthTrendsChart = echarts.init(document.getElementById('health-trends-chart'));
+            const healthTrendsOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: ['血压', '血糖', '体重指数', '心率']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '血压',
+                        type: 'line',
+                        data: [125, 123, 120, 118, 119, 117, 118],
+                        smooth: true,
+                        itemStyle: { color: '#ef4444' }
+                    },
+                    {
+                        name: '血糖',
+                        type: 'line',
+                        data: [5.8, 5.9, 5.7, 5.6, 5.8, 5.7, 5.7],
+                        smooth: true,
+                        itemStyle: { color: '#10b981' }
+                    },
+                    {
+                        name: '体重指数',
+                        type: 'line',
+                        data: [24.5, 24.2, 23.8, 23.5, 23.3, 23.0, 22.8],
+                        smooth: true,
+                        itemStyle: { color: '#f59e0b' }
+                    },
+                    {
+                        name: '心率',
+                        type: 'line',
+                        data: [75, 73, 74, 72, 71, 73, 72],
+                        smooth: true,
+                        itemStyle: { color: '#3b82f6' }
+                    }
+                ]
+            };
+            healthTrendsChart.setOption(healthTrendsOption);
+
+            // 风险因素分析图
+            const riskAnalysisChart = echarts.init(document.getElementById('risk-analysis-chart'));
+            const riskAnalysisOption = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left'
+                },
+                series: [
+                    {
+                        name: '风险因素',
+                        type: 'pie',
+                        radius: '50%',
+                        data: [
+                            { value: 35, name: '年龄因素', itemStyle: { color: '#ef4444' } },
+                            { value: 25, name: '生活方式', itemStyle: { color: '#f59e0b' } },
+                            { value: 20, name: '家族病史', itemStyle: { color: '#8b5cf6' } },
+                            { value: 20, name: '生理指标', itemStyle: { color: '#06b6d4' } }
+                        ],
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            riskAnalysisChart.setOption(riskAnalysisOption);
+
+            // 健康雷达图
+            const radarChart = echarts.init(document.getElementById('health-radar-chart'));
+            const radarOption = {
+                title: {
+                    text: '健康指标雷达图'
+                },
+                radar: {
+                    indicator: [
+                        { name: '心血管', max: 100 },
+                        { name: '代谢', max: 100 },
+                        { name: '免疫', max: 100 },
+                        { name: '精神', max: 100 },
+                        { name: '运动', max: 100 },
+                        { name: '营养', max: 100 }
+                    ]
+                },
+                series: [{
+                    name: '健康指标',
+                    type: 'radar',
+                    data: [{
+                        value: [85, 78, 92, 88, 75, 82],
+                        name: '当前状态',
+                        itemStyle: { color: '#3b82f6' },
+                        areaStyle: { color: 'rgba(59, 130, 246, 0.3)' }
+                    }, {
+                        value: [80, 75, 88, 85, 70, 78],
+                        name: '3个月前',
+                        itemStyle: { color: '#10b981' },
+                        areaStyle: { color: 'rgba(16, 185, 129, 0.2)' }
+                    }]
+                }]
+            };
+            radarChart.setOption(radarOption);
+
+            // 健康数据热力图
+            const heatmapChart = echarts.init(document.getElementById('health-heatmap-chart'));
+            const heatmapData = generateHeatmapData();
+            const heatmapOption = {
+                title: {
+                    text: '健康数据热力图'
+                },
+                tooltip: {
+                    position: 'top'
+                },
+                grid: {
+                    height: '50%',
+                    top: '10%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    splitArea: {
+                        show: true
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: '凌晨 早晨 上午 中午 下午 晚上 深夜'.split(' '),
+                    splitArea: {
+                        show: true
+                    }
+                },
+                visualMap: {
+                    min: 0,
+                    max: 100,
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '15%',
+                    inRange: {
+                        color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffcc', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+                    }
+                },
+                series: [{
+                    name: '健康指数',
+                    type: 'heatmap',
+                    data: heatmapData,
+                    label: {
+                        show: true
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }]
+            };
+            heatmapChart.setOption(heatmapOption);
+
+            // 响应式处理
+            window.addEventListener('resize', function() {
+                healthTrendsChart.resize();
+                riskAnalysisChart.resize();
+                radarChart.resize();
+                heatmapChart.resize();
+            });
+        }
+
+        // 生成热力图数据
+        function generateHeatmapData() {
+            const data = [];
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j < 7; j++) {
+                    data.push([i, j, Math.floor(Math.random() * 100)]);
+                }
+            }
+            return data;
+        }
+
+        // 初始化筛选器
+        function initializeFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const dataTypeFilter = document.getElementById('data-type-filter');
+            const generateReportBtn = document.getElementById('generate-report');
+
+            // 时间范围筛选
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filterType = this.dataset.filter;
+                    applyTimeFilter(filterType);
+                });
+            });
+
+            // 数据类型筛选
+            dataTypeFilter.addEventListener('change', function() {
+                const dataType = this.value;
+                applyDataTypeFilter(dataType);
+            });
+
+            // 生成报告
+            generateReportBtn.addEventListener('click', function() {
+                generateHealthReport();
+            });
+        }
+
+        // 应用时间筛选
+        function applyTimeFilter(timeRange) {
+            showNotification(`已切换到${getTimeRangeText(timeRange)}数据`, 'info');
+            
+            // 模拟数据更新
+            setTimeout(() => {
+                initializeAnalyticsCharts();
+            }, 500);
+        }
+
+        // 获取时间范围文本
+        function getTimeRangeText(range) {
+            const ranges = {
+                'week': '最近一周',
+                'month': '最近一月',
+                'quarter': '最近三月',
+                'year': '最近一年'
+            };
+            return ranges[range] || '全部';
+        }
+
+        // 应用数据类型筛选
+        function applyDataTypeFilter(dataType) {
+            showNotification(`已筛选${getDataTypeText(dataType)}数据`, 'info');
+            
+            // 模拟数据更新
+            setTimeout(() => {
+                initializeAnalyticsCharts();
+            }, 500);
+        }
+
+        // 获取数据类型文本
+        function getDataTypeText(type) {
+            const types = {
+                'all': '全部',
+                'vital': '生命体征',
+                'exercise': '运动',
+                'nutrition': '营养',
+                'sleep': '睡眠'
+            };
+            return types[type] || '全部';
+        }
+
+        // 生成健康报告
+        function generateHealthReport() {
+            showLoading();
+            
+            setTimeout(() => {
+                hideLoading();
+                showNotification('健康报告生成完成！', 'success');
+                
+                // 模拟报告数据
+                const reportData = {
+                    period: '2024年1月-3月',
+                    overallScore: 85,
+                    improvements: ['运动量增加', '睡眠质量改善', '体重控制良好'],
+                    concerns: ['血糖波动', '压力管理需要加强'],
+                    recommendations: ['增加力量训练', '改善饮食结构', '加强压力管理'],
+                    nextCheckup: '2024-04-15'
+                };
+                
+                // 显示报告下载链接（模拟）
+                showReportDownload(reportData);
+            }, 2000);
+        }
+
+        // 显示报告下载
+        function showReportDownload(reportData) {
+            const downloadLink = document.createElement('div');
+            downloadLink.className = 'fixed top-20 right-4 z-50 bg-white rounded-lg shadow-lg p-4 border';
+            downloadLink.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">健康报告已生成</p>
+                        <p class="text-sm text-gray-600">${reportData.period}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(downloadLink);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                if (downloadLink.parentElement) {
+                    downloadLink.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

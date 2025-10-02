@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康管理计划 - 智能健康管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .hero-title {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .goal-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .goal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        .suggestion-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .suggestion-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .progress-container {
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        .reminder-item {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+        }
+        .achievement-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .splide__slide {
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">智能健康管理</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据仪表板</a>
+                    <a href="prediction.html" class="text-gray-600 hover:text-blue-600 transition-colors">疾病预测</a>
+                    <a href="management.html" class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">健康管理</a>
+                    <a href="analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据分析</a>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-600 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h1 class="hero-title text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    个性化健康管理
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    基于您的健康数据和风险评估，为您制定个性化的健康管理计划和改善建议
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Health Goals Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">健康目标</h2>
+            <button onclick="openGoalModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                设置新目标
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="goal-card rounded-xl p-6 cursor-pointer" onclick="setHealthGoal('weight')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">⚖️</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">体重管理</h3>
+                    <p class="text-sm text-gray-600 mb-4">目标减重5kg，当前进度75%</p>
+                    <div class="progress-container h-2">
+                        <div class="progress-fill" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="goal-card rounded-xl p-6 cursor-pointer" onclick="setHealthGoal('exercise')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🏃</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">运动计划</h3>
+                    <p class="text-sm text-gray-600 mb-4">每周运动5次，当前进度60%</p>
+                    <div class="progress-container h-2">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="goal-card rounded-xl p-6 cursor-pointer" onclick="setHealthGoal('blood')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🩺</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">血压控制</h3>
+                    <p class="text-sm text-gray-600 mb-4">目标<130/85，当前进度85%</p>
+                    <div class="progress-container h-2">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="goal-card rounded-xl p-6 cursor-pointer" onclick="setHealthGoal('sleep')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">😴</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">睡眠改善</h3>
+                    <p class="text-sm text-gray-600 mb-4">每晚8小时，当前进度90%</p>
+                    <div class="progress-container h-2">
+                        <div class="progress-fill" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Goals -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">当前目标进度</h3>
+            <div id="current-goals" class="space-y-4">
+                <!-- 动态生成的目标卡片 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Personalized Suggestions -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">个性化建议</h2>
+        
+        <div class="splide" id="suggestions-slider">
+            <div class="splide__track">
+                <ul class="splide__list">
+                    <li class="splide__slide">
+                        <div class="suggestion-card">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">🥗</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">饮食建议</h3>
+                                    <p class="text-sm text-gray-600">基于您的血糖数据</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">减少精制糖摄入，选择全谷物食品</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">增加蔬菜摄入，每天至少5种不同颜色</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">控制碳水化合物摄入，选择低GI食物</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="splide__slide">
+                        <div class="suggestion-card">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">🏃</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">运动计划</h3>
+                                    <p class="text-sm text-gray-600">基于您的心血管风险评估</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">每周进行3-5次有氧运动，每次30-45分钟</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">推荐快走、游泳、骑自行车等低冲击运动</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">运动前后监测心率，避免过度训练</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="splide__slide">
+                        <div class="suggestion-card">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">😴</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">睡眠优化</h3>
+                                    <p class="text-sm text-gray-600">改善睡眠质量的建议</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">保持规律作息，每晚同一时间入睡</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">睡前1小时避免使用电子设备</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">创造舒适的睡眠环境，保持室温18-22℃</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="splide__slide">
+                        <div class="suggestion-card">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                                    <span class="text-2xl">🧘</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">压力管理</h3>
+                                    <p class="text-sm text-gray-600">心理健康维护建议</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">每天进行10-15分钟冥想或深呼吸练习</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">培养兴趣爱好，如阅读、园艺或音乐</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                                    <span class="text-sm text-gray-700">保持社交联系，与朋友家人定期交流</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Health Monitoring -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">健康监控</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Daily Tracking -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">每日追踪</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">💧</span>
+                            <div>
+                                <p class="font-medium text-gray-900">饮水量</p>
+                                <p class="text-sm text-gray-600">目标: 2000ml</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-blue-600">1650ml</p>
+                            <div class="w-16 h-2 bg-gray-200 rounded-full mt-1">
+                                <div class="w-4/5 h-2 bg-blue-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">🚶</span>
+                            <div>
+                                <p class="font-medium text-gray-900">步数</p>
+                                <p class="text-sm text-gray-600">目标: 10000步</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-green-600">8,240步</p>
+                            <div class="w-16 h-2 bg-gray-200 rounded-full mt-1">
+                                <div class="w-4/5 h-2 bg-green-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">🔥</span>
+                            <div>
+                                <p class="font-medium text-gray-900">卡路里</p>
+                                <p class="text-sm text-gray-600">目标: 2000kcal</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-orange-600">1,650kcal</p>
+                            <div class="w-16 h-2 bg-gray-200 rounded-full mt-1">
+                                <div class="w-4/5 h-2 bg-orange-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="updateDailyData()" class="w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    更新今日数据
+                </button>
+            </div>
+            
+            <!-- Reminders -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">健康提醒</h3>
+                    <button onclick="addReminder()" class="text-blue-600 hover:text-blue-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="reminders-list" class="space-y-3">
+                    <div class="reminder-item">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-medium text-gray-900">测量血压</p>
+                                <p class="text-sm text-gray-600">每天上午8:00</p>
+                            </div>
+                            <button onclick="toggleReminder(this)" class="text-green-600">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="reminder-item">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-medium text-gray-900">服用药物</p>
+                                <p class="text-sm text-gray-600">每天晚餐后</p>
+                            </div>
+                            <button onclick="toggleReminder(this)" class="text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="reminder-item">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="font-medium text-gray-900">运动时间</p>
+                                <p class="text-sm text-gray-600">每天下午6:00</p>
+                            </div>
+                            <button onclick="toggleReminder(this)" class="text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Achievements -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">健康成就</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gradient-to-r from-green-400 to-green-600 rounded-xl p-6 text-white">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-3xl">🏆</span>
+                    <span class="text-sm opacity-90">本月</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">运动达人</h3>
+                <p class="text-sm opacity-90">连续运动21天</p>
+            </div>
+            
+            <div class="bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl p-6 text-white">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-3xl">🎯</span>
+                    <span class="text-sm opacity-90">本周</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">目标达成</h3>
+                <p class="text-sm opacity-90">完成所有健康目标</p>
+            </div>
+            
+            <div class="bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl p-6 text-white">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-3xl">📈</span>
+                    <span class="text-sm opacity-90">持续</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">进步之星</h3>
+                <p class="text-sm opacity-90">健康评分提升15%</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Goal Setting Modal -->
+    <div id="goal-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">设置健康目标</h3>
+            <form id="goal-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">目标类型</label>
+                        <select name="goalType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="weight">体重管理</option>
+                            <option value="exercise">运动计划</option>
+                            <option value="blood">血压控制</option>
+                            <option value="sleep">睡眠改善</option>
+                            <option value="diet">饮食调整</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">目标描述</label>
+                        <input type="text" name="goalDescription" placeholder="如：减重5kg" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">目标周期</label>
+                        <select name="goalPeriod" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="1">1个月</option>
+                            <option value="3">3个月</option>
+                            <option value="6">6个月</option>
+                            <option value="12">1年</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex space-x-3 mt-6">
+                    <button type="button" onclick="closeGoalModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">取消</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">设置目标</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-sm text-gray-500">
+                © 2024 智能健康管理平台. 基于大数据的疾病预测与健康管理解决方案.
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // 健康管理页面特定功能
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeManagementSlider();
+            initializeProgressAnimations();
+        });
+
+        // 初始化轮播
+        function initializeManagementSlider() {
+            new Splide('#suggestions-slider', {
+                type: 'loop',
+                perPage: 3,
+                perMove: 1,
+                gap: '1rem',
+                autoplay: true,
+                interval: 5000,
+                breakpoints: {
+                    1024: {
+                        perPage: 2,
+                    },
+                    768: {
+                        perPage: 1,
+                    }
+                }
+            }).mount();
+        }
+
+        // 初始化进度条动画
+        function initializeProgressAnimations() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach((bar, index) => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                
+                setTimeout(() => {
+                    anime({
+                        targets: bar,
+                        width: width,
+                        duration: 1500,
+                        easing: 'easeOutExpo'
+                    });
+                }, index * 200);
+            });
+        }
+
+        // 设置健康目标
+        function setHealthGoal(type) {
+            const goals = {
+                weight: { title: '体重管理', target: '减重5kg', period: '3个月', progress: 75 },
+                exercise: { title: '运动计划', target: '每周运动5次', period: '持续进行', progress: 60 },
+                blood: { title: '血压控制', target: '血压<130/85', period: '2个月', progress: 85 },
+                sleep: { title: '睡眠改善', target: '每晚8小时', period: '1个月', progress: 90 }
+            };
+            
+            const goal = goals[type];
+            showNotification(`已选择${goal.title}目标`, 'success');
+            
+            // 可以在这里添加更多的目标设置逻辑
+        }
+
+        // 打开目标设置模态框
+        function openGoalModal() {
+            document.getElementById('goal-modal').classList.remove('hidden');
+            anime({
+                targets: '#goal-modal .bg-white',
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutExpo'
+            });
+        }
+
+        // 关闭目标设置模态框
+        function closeGoalModal() {
+            anime({
+                targets: '#goal-modal .bg-white',
+                scale: [1, 0.8],
+                opacity: [1, 0],
+                duration: 200,
+                easing: 'easeInExpo',
+                complete: function() {
+                    document.getElementById('goal-modal').classList.add('hidden');
+                }
+            });
+        }
+
+        // 更新每日数据
+        function updateDailyData() {
+            showNotification('今日数据已更新！', 'success');
+            
+            // 模拟数据更新动画
+            const progressBars = document.querySelectorAll('.w-4\\/5');
+            progressBars.forEach(bar => {
+                anime({
+                    targets: bar,
+                    width: ['80%', '85%'],
+                    duration: 1000,
+                    easing: 'easeOutExpo'
+                });
+            });
+        }
+
+        // 切换提醒状态
+        function toggleReminder(button) {
+            const isCompleted = button.classList.contains('text-green-600');
+            
+            if (isCompleted) {
+                button.classList.remove('text-green-600');
+                button.classList.add('text-gray-400');
+                button.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                `;
+            } else {
+                button.classList.remove('text-gray-400');
+                button.classList.add('text-green-600');
+                button.innerHTML = `
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                `;
+                
+                // 完成动画
+                anime({
+                    targets: button.closest('.reminder-item'),
+                    scale: [1, 1.05, 1],
+                    duration: 300,
+                    easing: 'easeOutExpo'
+                });
+                
+                showNotification('提醒已完成！', 'success');
+            }
+        }
+
+        // 添加新提醒
+        function addReminder() {
+            const reminderText = prompt('请输入新的健康提醒：');
+            if (reminderText) {
+                const remindersList = document.getElementById('reminders-list');
+                const newReminder = document.createElement('div');
+                newReminder.className = 'reminder-item';
+                newReminder.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-medium text-gray-900">${reminderText}</p>
+                            <p class="text-sm text-gray-600">自定义提醒</p>
+                        </div>
+                        <button onclick="toggleReminder(this)" class="text-gray-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                remindersList.appendChild(newReminder);
+                
+                // 动画显示新提醒
+                anime({
+                    targets: newReminder,
+                    opacity: [0, 1],
+                    translateX: [-20, 0],
+                    duration: 500,
+                    easing: 'easeOutExpo'
+                });
+                
+                showNotification('新提醒已添加！', 'success');
+            }
+        }
+
+        // 目标表单提交处理
+        document.getElementById('goal-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const goalType = formData.get('goalType');
+            const goalDescription = formData.get('goalDescription');
+            const goalPeriod = formData.get('goalPeriod');
+            
+            // 创建新目标卡片
+            const currentGoals = document.getElementById('current-goals');
+            const newGoal = document.createElement('div');
+            newGoal.className = 'bg-blue-50 border border-blue-200 rounded-lg p-4';
+            newGoal.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-medium text-blue-900">${goalType === 'weight' ? '体重管理' : 
+                                                        goalType === 'exercise' ? '运动计划' :
+                                                        goalType === 'blood' ? '血压控制' :
+                                                        goalType === 'sleep' ? '睡眠改善' :
+                                                        goalType === 'diet' ? '饮食调整' : '健康目标'}</h4>
+                    <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">${goalPeriod}个月</span>
+                </div>
+                <p class="text-sm text-blue-700 mb-2">目标: ${goalDescription}</p>
+                <div class="mt-2">
+                    <div class="w-full bg-blue-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full progress-fill" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-blue-600 mt-1">进度: 0%</p>
+                </div>
+            `;
+            
+            currentGoals.appendChild(newGoal);
+            
+            // 动画显示新目标
+            anime({
+                targets: newGoal,
+                opacity: [0, 1],
+                translateX: [-20, 0],
+                duration: 500,
+                easing: 'easeOutExpo'
+            });
+            
+            closeGoalModal();
+            showNotification('新目标已设置！', 'success');
+            
+            // 重置表单
+            this.reset();
+        });
+    </script>
+</body>
+</html>

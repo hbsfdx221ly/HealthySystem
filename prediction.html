@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>疾病风险预测 - 智能健康管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .hero-title {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+        .step-indicator.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .step-indicator.completed {
+            background: #10b981;
+            color: white;
+        }
+        .prediction-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .prediction-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        .risk-gauge {
+            position: relative;
+            width: 200px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .option-button {
+            transition: all 0.2s ease;
+            border: 2px solid #e5e7eb;
+        }
+        .option-button:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .option-button.selected {
+            border-color: #3b82f6;
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">智能健康管理</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据仪表板</a>
+                    <a href="prediction.html" class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">疾病预测</a>
+                    <a href="management.html" class="text-gray-600 hover:text-blue-600 transition-colors">健康管理</a>
+                    <a href="analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据分析</a>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-600 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h1 class="hero-title text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    智能疾病风险预测
+                </h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    基于大数据分析和机器学习算法，为您提供个性化的疾病风险评估和预防建议
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prediction Selection -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">选择预测类型</h2>
+            <p class="text-gray-600">请选择您想要评估的疾病风险类型</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('cardiovascular')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">❤️</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">心血管疾病</h3>
+                    <p class="text-sm text-gray-600">评估心脏病、高血压等心血管系统疾病风险</p>
+                </div>
+            </div>
+            
+            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('diabetes')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🩸</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">糖尿病</h3>
+                    <p class="text-sm text-gray-600">评估1型和2型糖尿病发病风险</p>
+                </div>
+            </div>
+            
+            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('cancer')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🎗️</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">癌症风险</h3>
+                    <p class="text-sm text-gray-600">评估常见恶性肿瘤发病风险</p>
+                </div>
+            </div>
+            
+            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('respiratory')">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🫁</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">呼吸系统</h3>
+                    <p class="text-sm text-gray-600">评估肺部疾病和呼吸系统风险</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prediction Form -->
+    <section id="prediction-form-section" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 hidden">
+        <!-- Progress Indicator -->
+        <div class="mb-8">
+            <div class="flex items-center justify-center space-x-4 mb-4">
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-gray-200 text-gray-600" data-step="1">1</div>
+                <div class="w-12 h-1 bg-gray-200"></div>
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-gray-200 text-gray-600" data-step="2">2</div>
+                <div class="w-12 h-1 bg-gray-200"></div>
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-gray-200 text-gray-600" data-step="3">3</div>
+                <div class="w-12 h-1 bg-gray-200"></div>
+                <div class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-gray-200 text-gray-600" data-step="4">4</div>
+            </div>
+            <div class="text-center">
+                <div class="text-sm text-gray-600">步骤 <span id="current-step-text">1</span> / 4</div>
+            </div>
+        </div>
+
+        <!-- Prediction Form -->
+        <form id="prediction-form" class="space-y-6">
+            <!-- Step 1: Basic Information -->
+            <div class="prediction-step" data-step="1">
+                <div class="question-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">基本信息</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">年龄</label>
+                            <input type="number" name="age" min="1" max="120" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入年龄">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">性别</label>
+                            <div class="flex space-x-4">
+                                <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="gender" data-value="male">男性</button>
+                                <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="gender" data-value="female">女性</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">身高 (cm)</label>
+                        <input type="number" name="height" min="100" max="250" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入身高">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">体重 (kg)</label>
+                        <input type="number" name="weight" min="30" max="200" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入体重">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Lifestyle -->
+            <div class="prediction-step hidden" data-step="2">
+                <div class="question-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">生活习惯</h3>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">吸烟情况</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="smoking" data-value="never">从不吸烟</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="smoking" data-value="former">曾经吸烟</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="smoking" data-value="current">现在吸烟</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">饮酒情况</label>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="alcohol" data-value="never">从不饮酒</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="alcohol" data-value="occasional">偶尔饮酒</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="alcohol" data-value="regular">经常饮酒</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="alcohol" data-value="heavy">大量饮酒</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">运动频率</label>
+                        <select name="exercise" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">请选择运动频率</option>
+                            <option value="never">从不运动</option>
+                            <option value="rarely">很少运动（每月1-2次）</option>
+                            <option value="sometimes">有时运动（每周1-2次）</option>
+                            <option value="regular">经常运动（每周3-4次）</option>
+                            <option value="daily">每天运动</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">饮食习惯</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="diet" data-value="healthy">健康饮食</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="diet" data-value="average">一般饮食</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="diet" data-value="unhealthy">不健康饮食</button>
+                            <button type="button" class="option-button px-4 py-2 rounded-lg" data-name="diet" data-value="fastfood">经常快餐</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Medical History -->
+            <div class="prediction-step hidden" data-step="3">
+                <div class="question-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">病史信息</h3>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">家族病史</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="family_history" value="diabetes" class="mr-2">
+                                <span class="text-sm">糖尿病</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="family_history" value="heart_disease" class="mr-2">
+                                <span class="text-sm">心脏病</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="family_history" value="hypertension" class="mr-2">
+                                <span class="text-sm">高血压</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="family_history" value="cancer" class="mr-2">
+                                <span class="text-sm">癌症</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">个人病史</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="personal_history" value="diabetes" class="mr-2">
+                                <span class="text-sm">糖尿病</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="personal_history" value="hypertension" class="mr-2">
+                                <span class="text-sm">高血压</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="personal_history" value="heart_disease" class="mr-2">
+                                <span class="text-sm">心脏病</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="personal_history" value="none" class="mr-2">
+                                <span class="text-sm">无相关病史</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">当前症状</label>
+                        <textarea name="symptoms" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请描述您目前的症状或不适（可选）"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Physical Indicators -->
+            <div class="prediction-step hidden" data-step="4">
+                <div class="question-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">生理指标</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">血压 (mmHg)</label>
+                            <input type="text" name="blood_pressure" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="如：120/80">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">血糖 (mmol/L)</label>
+                            <input type="number" name="blood_sugar" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="如：5.6">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">胆固醇 (mmol/L)</label>
+                            <input type="number" name="cholesterol" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="如：4.5">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">心率 (次/分钟)</label>
+                            <input type="number" name="heart_rate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="如：72">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">腰围 (cm)</label>
+                        <input type="number" name="waist_circumference" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入腰围">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between mt-8">
+                <button type="button" id="prev-btn" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hidden">上一步</button>
+                <div class="flex-1"></div>
+                <button type="button" id="next-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">下一步</button>
+                <button type="submit" id="submit-btn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hidden">开始预测</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Prediction Result -->
+    <section id="prediction-result" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 hidden">
+        <div class="bg-white rounded-xl shadow-sm p-8">
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-8">预测结果</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Risk Gauge -->
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">风险评分</h3>
+                    <div id="risk-gauge-chart" style="height: 200px;"></div>
+                    <div class="mt-4">
+                        <div class="text-3xl font-bold" id="risk-score">0</div>
+                        <div class="text-sm text-gray-600" id="risk-level">计算中...</div>
+                    </div>
+                </div>
+                
+                <!-- Risk Factors -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">主要风险因素</h3>
+                    <div id="risk-factors" class="space-y-3">
+                        <!-- 风险因素将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendations -->
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">个性化建议</h3>
+                <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 建议将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex justify-center space-x-4 mt-8">
+                <button onclick="resetPrediction()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">重新评估</button>
+                <button onclick="location.href='management.html'" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">制定健康计划</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-sm text-gray-500">
+                © 2024 智能健康管理平台. 基于大数据的疾病预测与健康管理解决方案.
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script>
+        // 预测页面特定功能
+        let currentStep = 1;
+        let selectedPredictionType = '';
+        let formData = {};
+
+        // 选择预测类型
+        function selectPredictionType(type) {
+            selectedPredictionType = type;
+            document.getElementById('prediction-form-section').classList.remove('hidden');
+            
+            // 滚动到表单区域
+            document.getElementById('prediction-form-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+            
+            // 动画显示表单
+            anime({
+                targets: '#prediction-form-section',
+                opacity: [0, 1],
+                translateY: [50, 0],
+                duration: 600,
+                easing: 'easeOutExpo'
+            });
+        }
+
+        // 初始化预测表单
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePredictionForm();
+        });
+
+        function initializePredictionForm() {
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            const form = document.getElementById('prediction-form');
+
+            // 选项按钮点击处理
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option-button')) {
+                    const name = e.target.dataset.name;
+                    const value = e.target.dataset.value;
+                    
+                    // 移除同组其他选项的选中状态
+                    document.querySelectorAll(`[data-name="${name}"]`).forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    
+                    // 选中当前选项
+                    e.target.classList.add('selected');
+                    
+                    // 存储数据
+                    formData[name] = value;
+                }
+            });
+
+            // 下一步按钮
+            nextBtn.addEventListener('click', function() {
+                if (validateCurrentStep()) {
+                    if (currentStep < 4) {
+                        currentStep++;
+                        showStep(currentStep);
+                    }
+                }
+            });
+
+            // 上一步按钮
+            prevBtn.addEventListener('click', function() {
+                if (currentStep > 1) {
+                    currentStep--;
+                    showStep(currentStep);
+                }
+            });
+
+            // 表单提交
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (validateCurrentStep()) {
+                    collectFormData();
+                    calculateRisk();
+                }
+            });
+
+            // 输入框数据收集
+            form.addEventListener('input', function(e) {
+                if (e.target.name) {
+                    formData[e.target.name] = e.target.value;
+                }
+            });
+        }
+
+        function showStep(step) {
+            // 隐藏所有步骤
+            document.querySelectorAll('.prediction-step').forEach(stepEl => {
+                stepEl.classList.add('hidden');
+            });
+            
+            // 显示当前步骤
+            document.querySelector(`[data-step="${step}"]`).classList.remove('hidden');
+            
+            // 更新步骤指示器
+            updateStepIndicators(step);
+            
+            // 更新按钮状态
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            prevBtn.classList.toggle('hidden', step === 1);
+            nextBtn.classList.toggle('hidden', step === 4);
+            submitBtn.classList.toggle('hidden', step !== 4);
+            
+            // 更新步骤文本
+            document.getElementById('current-step-text').textContent = step;
+            
+            // 动画显示当前步骤
+            anime({
+                targets: `[data-step="${step}"]`,
+                opacity: [0, 1],
+                translateX: [50, 0],
+                duration: 400,
+                easing: 'easeOutExpo'
+            });
+        }
+
+        function updateStepIndicators(currentStep) {
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const stepNum = index + 1;
+                indicator.classList.remove('active', 'completed');
+                
+                if (stepNum < currentStep) {
+                    indicator.classList.add('completed');
+                } else if (stepNum === currentStep) {
+                    indicator.classList.add('active');
+                }
+            });
+        }
+
+        function validateCurrentStep() {
+            const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+            const requiredFields = currentStepEl.querySelectorAll('input[required], select[required]');
+            
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    showNotification('请填写所有必填项', 'error');
+                    field.focus();
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function collectFormData() {
+            // 收集所有表单数据
+            const form = document.getElementById('prediction-form');
+            const formElements = form.elements;
+            
+            for (let element of formElements) {
+                if (element.name) {
+                    if (element.type === 'checkbox') {
+                        if (!formData[element.name]) formData[element.name] = [];
+                        if (element.checked) {
+                            formData[element.name].push(element.value);
+                        }
+                    } else if (element.type !== 'button' && element.value) {
+                        formData[element.name] = element.value;
+                    }
+                }
+            }
+        }
+
+        function calculateRisk() {
+            showLoading();
+            
+            // 模拟风险计算过程
+            setTimeout(() => {
+                const riskScore = calculateRiskScore();
+                hideLoading();
+                showPredictionResult(riskScore);
+            }, 2000);
+        }
+
+        function calculateRiskScore() {
+            // 简化的风险计算逻辑
+            let score = 0;
+            
+            // 年龄因素
+            const age = parseInt(formData.age) || 30;
+            if (age > 60) score += 30;
+            else if (age > 45) score += 20;
+            else if (age > 35) score += 10;
+            
+            // BMI因素
+            const height = parseFloat(formData.height) || 170;
+            const weight = parseFloat(formData.weight) || 70;
+            const bmi = weight / ((height / 100) ** 2);
+            if (bmi > 30) score += 25;
+            else if (bmi > 25) score += 15;
+            else if (bmi < 18.5) score += 10;
+            
+            // 生活方式因素
+            if (formData.smoking === 'current') score += 25;
+            else if (formData.smoking === 'former') score += 10;
+            
+            if (formData.alcohol === 'heavy') score += 15;
+            else if (formData.alcohol === 'regular') score += 10;
+            
+            if (formData.exercise === 'never') score += 20;
+            else if (formData.exercise === 'rarely') score += 15;
+            
+            // 家族病史
+            if (formData.family_history && formData.family_history.length > 0) {
+                score += formData.family_history.length * 10;
+            }
+            
+            // 个人病史
+            if (formData.personal_history && formData.personal_history.length > 0) {
+                score += formData.personal_history.length * 20;
+            }
+            
+            // 生理指标
+            const bloodPressure = formData.blood_pressure || '120/80';
+            const bpParts = bloodPressure.split('/');
+            if (bpParts.length === 2) {
+                const systolic = parseInt(bpParts[0]) || 120;
+                const diastolic = parseInt(bpParts[1]) || 80;
+                if (systolic > 140 || diastolic > 90) score += 20;
+                else if (systolic > 130 || diastolic > 85) score += 10;
+            }
+            
+            const bloodSugar = parseFloat(formData.blood_sugar) || 5.6;
+            if (bloodSugar > 7.0) score += 25;
+            else if (bloodSugar > 6.1) score += 15;
+            
+            // 确保分数在0-100之间
+            return Math.min(Math.max(score, 0), 100);
+        }
+
+        function showPredictionResult(score) {
+            document.getElementById('prediction-result').classList.remove('hidden');
+            
+            // 滚动到结果区域
+            document.getElementById('prediction-result').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+            
+            // 初始化风险图表
+            initializeRiskGauge(score);
+            
+            // 显示风险因素
+            showRiskFactors(score);
+            
+            // 显示建议
+            showRecommendations(score);
+            
+            // 动画显示结果
+            anime({
+                targets: '#prediction-result .bg-white',
+                opacity: [0, 1],
+                scale: [0.9, 1],
+                duration: 600,
+                easing: 'easeOutExpo'
+            });
+        }
+
+        function initializeRiskGauge(score) {
+            const gaugeChart = echarts.init(document.getElementById('risk-gauge-chart'));
+            const gaugeOption = {
+                series: [
+                    {
+                        name: '风险评分',
+                        type: 'gauge',
+                        startAngle: 180,
+                        endAngle: 0,
+                        min: 0,
+                        max: 100,
+                        splitNumber: 10,
+                        itemStyle: {
+                            color: score < 30 ? '#10b981' : score < 70 ? '#f59e0b' : '#ef4444'
+                        },
+                        progress: {
+                            show: true,
+                            width: 18
+                        },
+                        pointer: {
+                            show: false
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                width: 18
+                            }
+                        },
+                        axisTick: {
+                            distance: -45,
+                            splitNumber: 5,
+                            lineStyle: {
+                                width: 2,
+                                color: '#999'
+                            }
+                        },
+                        splitLine: {
+                            distance: -52,
+                            length: 14,
+                            lineStyle: {
+                                width: 3,
+                                color: '#999'
+                            }
+                        },
+                        axisLabel: {
+                            distance: -20,
+                            color: '#999',
+                            fontSize: 12
+                        },
+                        anchor: {
+                            show: false
+                        },
+                        title: {
+                            show: false
+                        },
+                        detail: {
+                            valueAnimation: true,
+                            width: '60%',
+                            lineHeight: 40,
+                            borderRadius: 8,
+                            offsetCenter: [0, '-15%'],
+                            fontSize: 20,
+                            fontWeight: 'bolder',
+                            formatter: '{value}%',
+                            color: 'inherit'
+                        },
+                        data: [
+                            {
+                                value: score
+                            }
+                        ]
+                    }
+                ]
+            };
+            
+            gaugeChart.setOption(gaugeOption);
+            
+            // 更新文本显示
+            const riskLevel = score < 30 ? '低风险' : score < 70 ? '中风险' : '高风险';
+            document.getElementById('risk-score').textContent = score.toFixed(1) + '%';
+            document.getElementById('risk-level').textContent = riskLevel;
+        }
+
+        function showRiskFactors(score) {
+            const riskFactors = document.getElementById('risk-factors');
+            const factors = generateRiskFactors(score);
+            
+            riskFactors.innerHTML = factors.map(factor => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="text-sm font-medium text-gray-700">${factor.name}</span>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-16 h-2 bg-gray-200 rounded-full">
+                            <div class="h-2 rounded-full" style="width: ${factor.level}%; background-color: ${factor.color}"></div>
+                        </div>
+                        <span class="text-xs text-gray-500">${factor.level}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function generateRiskFactors(score) {
+            const factors = [
+                { name: '年龄因素', level: Math.min(score * 0.3, 100), color: '#f59e0b' },
+                { name: '生活方式', level: Math.min(score * 0.25, 100), color: '#ef4444' },
+                { name: '家族病史', level: Math.min(score * 0.2, 100), color: '#8b5cf6' },
+                { name: '生理指标', level: Math.min(score * 0.25, 100), color: '#06b6d4' }
+            ];
+            
+            return factors;
+        }
+
+        function showRecommendations(score) {
+            const recommendations = document.getElementById('recommendations');
+            const recs = generateRecommendations(score);
+            
+            recommendations.innerHTML = recs.map(rec => `
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <span class="text-2xl mr-2">${rec.icon}</span>
+                        <h4 class="font-medium text-gray-900">${rec.title}</h4>
+                    </div>
+                    <p class="text-sm text-gray-600">${rec.description}</p>
+                </div>
+            `).join('');
+        }
+
+        function generateRecommendations(score) {
+            if (score < 30) {
+                return [
+                    { icon: '😊', title: '保持良好习惯', description: '您的健康状况良好，继续保持现有的健康生活方式。' },
+                    { icon: '🏃', title: '定期运动', description: '建议每周进行至少150分钟的中等强度有氧运动。' },
+                    { icon: '🥗', title: '均衡饮食', description: '保持营养均衡的饮食，多吃蔬菜水果，少吃加工食品。' },
+                    { icon: '😴', title: '充足睡眠', description: '保证每晚7-9小时的优质睡眠，有助于维持免疫系统功能。' }
+                ];
+            } else if (score < 70) {
+                return [
+                    { icon: '⚠️', title: '改善生活方式', description: '需要调整部分生活习惯，降低疾病风险。' },
+                    { icon: '🚭', title: '戒烟限酒', description: '如果吸烟或过量饮酒，建议戒烟或减少饮酒量。' },
+                    { icon: '💪', title: '增加运动', description: '逐步增加运动量，从每周3次开始，每次30分钟。' },
+                    { icon: '👨‍⚕️', title: '定期检查', description: '建议每6个月进行一次全面体检，监控健康指标。' }
+                ];
+            } else {
+                return [
+                    { icon: '🚨', title: '立即就医', description: '建议尽快咨询专业医生，制定详细的治疗和预防计划。' },
+                    { icon: '💊', title: '药物治疗', description: '根据医生建议，可能需要药物治疗来控制相关指标。' },
+                    { icon: '📊', title: '密切监控', description: '定期监测血压、血糖等关键指标，及时调整治疗方案。' },
+                    { icon: '🥙', title: '严格饮食', description: '遵循医生或营养师的建议，制定个性化的饮食计划。' }
+                ];
+            }
+        }
+
+        function resetPrediction() {
+            // 重置表单
+            document.getElementById('prediction-form').reset();
+            formData = {};
+            currentStep = 1;
+            
+            // 重置UI
+            document.getElementById('prediction-form-section').classList.add('hidden');
+            document.getElementById('prediction-result').classList.add('hidden');
+            
+            // 清除选中状态
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // 重置步骤指示器
+            updateStepIndicators(1);
+            showStep(1);
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
