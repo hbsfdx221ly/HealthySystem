@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI健康助手 - 智能健康管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .hero-title {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .chat-container {
+            max-width: 800px;
+            height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 滚动条美化 */
+        #chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chat-box::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-gray-800">
+
+    <!-- 导航 -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">智能健康管理</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据仪表板</a>
+                    <a href="prediction.html" class="text-gray-600 hover:text-blue-600 transition-colors">疾病预测</a>
+                    <a href="management.html" class="text-gray-600 hover:text-blue-600 transition-colors">健康管理</a>
+                    <a href="analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据分析</a>
+                    <a href="ai-assistant.html"
+                        class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">AI助手</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 标题区 -->
+    <section class="pt-24 pb-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="hero-title text-4xl md:text-5xl font-bold text-gray-900 mb-4">AI健康助手</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">随时向您的专属AI健康顾问提问，获取即时、专业的健康信息。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 聊天区 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <!-- AI 头像模板（隐藏，后面克隆） -->
+        <img id="ai-avatar-src" src="1.png" class="hidden" />
+        <div class="chat-container mx-auto bg-white rounded-xl shadow-lg p-4">
+            <!-- 消息列表 -->
+            <div id="chat-box" class="flex-1 overflow-y-auto px-4 py-2 space-y-4"></div>
+
+            <!-- 打字动画 -->
+            <div id="typing-indicator" class="hidden px-4 py-2">
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.1s"></span>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.2s"></span>
+                    <span>AI 正在输入…</span>
+                </div>
+            </div>
+
+            <!-- 输入栏 -->
+            <div class="p-4 border-t border-gray-200">
+                <form id="chat-form" class="flex items-center space-x-3">
+                    <input type="text" id="message-input" placeholder="输入您的问题..." autocomplete="off"
+                        class="flex-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    <button type="submit"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300">发送</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatBox = document.getElementById('chat-box');
+            const chatForm = document.getElementById('chat-form');
+            const messageInput = document.getElementById('message-input');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const submitBtn = chatForm.querySelector('button[type="submit"]');
+
+            let chatHistory = [];
+
+            // 初始欢迎语
+            appendMessage('你好！我是你的AI健康助手。你可以向我咨询关于健康、营养、运动或疾病预防等方面的问题。请注意，我的建议仅供参考，不能替代专业医疗诊断。', 'ai');
+
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                if (!message) return;
+
+                appendMessage(message, 'user');
+                chatHistory.push({ role: 'user', content: message });
+                messageInput.value = '';
+                submitBtn.disabled = true;
+                showTyping(true);
+
+                try {
+                    const res = await fetch('http://localhost:3000/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message, history: chatHistory.slice(0, -1) })
+                    });
+                    if (!res.ok) throw new Error('网络错误或服务器问题');
+                    const data = await res.json();
+                    appendMessage(data.reply, 'ai');
+                    chatHistory.push({ role: 'assistant', content: data.reply });
+                } catch (err) {
+                    console.error(err);
+                    appendMessage('抱歉，我现在无法回答。请稍后再试。', 'ai');
+                } finally {
+                    submitBtn.disabled = false;
+                    showTyping(false);
+                }
+            });
+
+            /* ------- 核心函数 ------- */
+            function appendMessage(text, sender) {
+                const wrapper = document.createElement('div');
+                if (sender === 'user') {
+                    wrapper.className = 'flex flex-row-reverse items-start space-x-2 space-x-reverse justify-end';
+                } else {
+                    wrapper.className = 'flex items-start space-x-2 justify-start';
+                }
+
+                /* ---- 头像（仅 AI 显示） ---- */
+                if (sender === 'ai') {
+                    const avatar = document.createElement('img');
+                    avatar.src = document.getElementById('ai-avatar-src').src;   // 你的 Base64
+                    avatar.className = 'w-8 h-8 rounded-full object-cover flex-shrink-0 mt-2'; // mt-2≈第一行左侧中间
+                    wrapper.appendChild(avatar);
+                }
+
+                /* ---- 气泡 ---- */
+                const bubble = document.createElement('div');
+                bubble.className = 'max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow ' +
+                    (sender === 'user'
+                        ? 'bg-white text-gray-800 border border-blue-300 ml-auto'
+                        : 'bg-gray-100 text-gray-800 border border-gray-300');
+                wrapper.appendChild(bubble);
+
+                chatBox.appendChild(wrapper);
+
+                /* 内容填充 & 打字机 */
+                if (sender === 'ai') {
+                    typeWriter(bubble, text, () => scrollToBottom());
+                } else {
+                    bubble.textContent = text;
+                    scrollToBottom();
+                }
+            }
+            function typeWriter(element, text, onDone) {
+                // 把 AI 纯文本 → 转成 Markdown 风格的真人排版
+                const styled = text
+                    .replace(/^#\s+(.*)/gm, '<h1 class="text-lg font-bold text-gray-900 mt-3 mb-1">$1</h1>')
+                    .replace(/^##\s+(.*)/gm, '<h2 class="text-base font-semibold text-gray-800 mt-2 mb-1">$1</h2>')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-gray-900">$1</strong>')
+                    .replace(/^\*\s+/gm, '<li class="ml-4 list-disc">')   // 简易 * 转 li
+                    .replace(/\n/g, '<br>')
+                    .replace(/<\/li><br>/g, '</li>');                     // 去多余 br
+
+                let i = 0;
+                const run = () => {
+                    if (i < styled.length) {
+                        element.innerHTML = styled.slice(0, i + 1);
+                        scrollToBottom();
+                        i++;
+                        setTimeout(run, 18);   // 打字速度
+                    } else {
+                        onDone && onDone();
+                    }
+                };
+                run();
+            }
+            function showTyping(show) {
+                typingIndicator.classList.toggle('hidden', !show);
+                scrollToBottom();
+            }
+
+            function scrollToBottom() {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+</body>
+
+</html>
