@@ -1,0 +1,51 @@
+高血压10题cardiovascular
+1. 年龄 age （数字）
+2. 性别 gender(男，女)
+3. 父母或兄弟姐妹患高血压 gaoxueya (是，否)
+4. 总胆固醇 chol （数字）
+静息心率 hr （数字）
+5. 收缩压  或舒张压  bp （数字）
+6. 每日食盐 shiyan （数字）
+7. 每周运动情况exercise （数字）
+8. 长期熬夜？aoye （是，否）
+9. 打鼾明显或曾被诊断阻塞性睡眠呼吸暂停？dahan （是，否）
+10. 情绪紧张/焦虑：过去1个月 ≥3次因压力失眠或易怒？qingxu （是，否）
+
+2型糖尿病10题diabetes
+1. 年龄age （数字）
+性别 gender （男，女）
+2. BMI bmi （数字）
+3. 父母或兄弟姐妹患糖尿病？qingqi （是，否）
+4. 每周运动情况exercise （数字）
+5. 空腹血糖  bs （数字）
+6. 每日含糖饮料 多少 mL sugar_drinks （数字）
+7. 高血压或血脂异常？yichang （是，否） 
+8. 黑棘皮征：颈部/腋下皮肤发黑粗糙？pizheng （是，否）
+
+血脂异常10题dyslipidemia
+1. 年龄 age （数字）
+性别gender （男，女）
+2. BMI bmi （数字）
+3. 父母或兄弟姐妹早发心血管病史（？family_history_cardiovascular （是，否）
+4. 血总胆固醇(cholesterol) （数字）
+甘油三酯(triglycerides) （数字）
+6. 每日吃反式脂肪（奶茶、植脂末、人造奶油）zhifang （是，否）
+7. 每周中等强度运动 <150 min？exercise （数字）
+8. 吸烟或戒烟 <5年？xiyan （是，否）
+9. 长期大量饮酒（日均酒精 ≥15 g）？alcohol_consumption （是，否）
+10. 甲状腺功能减退或慢性肾病？jiazhuanxian （是，否）
+
+骨关节炎10题osteoarthritis
+性别gender （男，女）
+1. 年龄age （数字）
+2. 双膝/髋/手指晨僵 ≤30 min且活动后减轻？shuangxi （是，否）
+3. 上下楼或蹲起时关节痛 shanglou （是，否）
+4. 关节曾肿大、变形或拍片提示“骨赘”？zhongda （是，否）
+5. BMI bmi （数字）
+7. 职业或运动导致关节负重大（搬运、爬山、长跑）≥5年？zhiye （是，否）
+8. 关节外伤史（半月板/韧带/骨折）？waishang （是，否）
+9. 家族中有≥2人患骨关节炎？family_history_respiratory （是，否）
+10. 经常爬楼梯 ≥10层/日或深蹲 ≥50次/日？palou （是，否）
+
+统一免责声明
+以上问卷仅用于健康筛查，不能替代医生面诊与实验室检查；如有阳性条目或症状，请及时就医。

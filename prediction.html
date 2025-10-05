@@ -84,6 +84,20 @@
             opacity: 0.15;
         }
     </style>
+    <style>
+        /* 健康贴士小卡片 */
+        .tips-float {
+            position: absolute;
+            left: 110px;          /* 调到合适偏移 */
+            top: 80px;
+            width: 250px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,.15));
+            z-index: 10;
+        }
+        @media (max-width: 1280px) {   /* 屏幕窄时自动隐藏，避免遮挡 */
+        .tips-float { display: none; }
+}
+</style>
 </head>
 <body class="min-h-screen">
     <canvas id="matter-canvas"></canvas>
@@ -104,6 +118,7 @@
                     <a href="prediction.html" class="text-blue-600 font-medium border-b-2 border-blue-600 pb-1">疾病预测</a>
                     <a href="management.html" class="text-gray-600 hover:text-blue-600 transition-colors">健康管理</a>
                     <a href="analytics.html" class="text-gray-600 hover:text-blue-600 transition-colors">数据分析</a>
+                    <a href="ai-assistant.html" class="text-gray-600 hover:text-blue-600 transition-colors">AI助手</a>
                 </div>
                 <div class="md:hidden">
                     <button class="text-gray-600 hover:text-blue-600">
@@ -150,23 +165,23 @@
                 <div class="text-center">
                     <div class="text-4xl mb-4">🩸</div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">糖尿病</h3>
-                    <p class="text-sm text-gray-600">评估1型和2型糖尿病发病风险</p>
+                    <p class="text-sm text-gray-600">评估Ⅱ型糖尿病发病风险</p>
                 </div>
             </div>
             
-            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('cancer')">
+            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('dyslipidemia')">
                 <div class="text-center">
-                    <div class="text-4xl mb-4">🎗️</div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">癌症风险</h3>
-                    <p class="text-sm text-gray-600">评估常见恶性肿瘤发病风险</p>
+                    <div class="text-4xl mb-4">🫀</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">血脂异常风险</h3>
+                    <p class="text-sm text-gray-600">评估常见血脂异常相关疾病风险</p>
                 </div>
             </div>
             
-            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('respiratory')">
+            <div class="prediction-card rounded-xl p-6 cursor-pointer" onclick="selectPredictionType('osteoarthritis')">
                 <div class="text-center">
-                    <div class="text-4xl mb-4">🫁</div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">呼吸系统</h3>
-                    <p class="text-sm text-gray-600">评估肺部疾病和呼吸系统风险</p>
+                    <div class="text-4xl mb-4">🦴</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">骨关节炎</h3>
+                    <p class="text-sm text-gray-600">评估骨关节炎风险</p>
                 </div>
             </div>
         </div>
@@ -194,10 +209,41 @@
                                 <option value="0">女</option>
                             </select>
                         </div>
-                        <!-- Cancer Specific -->
-                        <div class="form-group hidden" data-prediction-type="cancer">
-                            <label for="family_history_cancer" class="block text-sm font-medium text-gray-700 mb-1">是否有癌症家族史？</label>
-                            <select id="family_history_cancer" name="family_history_cancer" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        <!-- cardiovascular Specific -->
+                         <div class="form-group hidden" data-prediction-type="cardiovascular">
+                            <label for="gaoxueya" class="block text-sm font-medium text-gray-700 mb-1">父母或兄弟姐妹患高血压？</label>
+                            <select id="gaoxueya" name="gaoxueya" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <!-- diabetes Specific -->
+                         <div class="form-group hidden" data-prediction-type="diabetes">
+                            <label for="qingqi" class="block text-sm font-medium text-gray-700 mb-1">父母或兄弟姐妹患糖尿病？</label>
+                            <select id="qingqi" name="qingqi" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <!-- dyslipidemia Specific -->
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
+                            <label for="family_history_cardiovascular" class="block text-sm font-medium text-gray-700 mb-1">父母或兄弟姐妹早发心血管病史？</label>
+                            <select id="family_history_cardiovascular" name="family_history_cardiovascular" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <!-- osteoarthritis Specific -->
+                        <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="family_history_osteoarthritis" class="block text-sm font-medium text-gray-700 mb-1">家族中有≥2人患骨关节炎？</label>
+                            <select id="family_history_osteoarthritis" name="family_history_osteoarthritis" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="waishang" class="block text-sm font-medium text-gray-700 mb-1">关节外伤史（半月板/韧带/骨折）</label>
+                            <select id="waishang" name="waishang" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                                 <option value="1">是</option>
                                 <option value="0">否</option>
                             </select>
@@ -223,6 +269,16 @@
                             <input type="number" id="chol" name="chol" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: < 200" min="100" max="400" required>
                             <p class="text-red-500 text-xs mt-1 hidden">请输入总胆固醇。</p>
                         </div>
+                        <div class="form-group hidden" data-prediction-type="cardiovascular">
+                             <label for="hr" class="block text-sm font-medium text-gray-700 mb-1">静息心率 (bpm)</label>
+                            <input type="number" id="hr" name="hr" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: 60-100" min="40" max="180" required>
+                            <p class="text-red-500 text-xs mt-1 hidden">请输入静息心率。</p>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="cardiovascular">
+                            <label for="shiyan" class="block text-sm font-medium text-gray-700 mb-1">每日食盐情况(g/天)</label>
+                            <input type="number" id="shiyan" name="shiyan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: 3-5" min="1" max="20" required>
+                            <p class="text-red-500 text-xs mt-1 hidden">请输入每日食盐情况。</p>
+                        </div>
                         <!-- Diabetes Specific -->
                         <div class="form-group hidden" data-prediction-type="diabetes">
                             <label for="bs" class="block text-sm font-medium text-gray-700 mb-1">空腹血糖 (mg/dL)</label>
@@ -234,36 +290,43 @@
                             <input type="number" id="bmi" name="bmi" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: 18.5-24.9" min="15" max="50" required>
                             <p class="text-red-500 text-xs mt-1 hidden">请输入BMI指数。</p>
                         </div>
-                        <!-- Common for Cardiovascular & Diabetes -->
-                        <div class="form-group hidden" data-prediction-type="cardiovascular diabetes">
-                             <label for="hr" class="block text-sm font-medium text-gray-700 mb-1">静息心率 (bpm)</label>
-                            <input type="number" id="hr" name="hr" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: 60-100" min="40" max="180" required>
-                            <p class="text-red-500 text-xs mt-1 hidden">请输入静息心率。</p>
+                        <div class="form-group hidden" data-prediction-type="diabetes">
+                            <label for="sugar_drinks" class="block text-sm font-medium text-gray-700 mb-1">每日含糖饮料 (ml)</label>
+                            <input type="number" id="sugar_drinks" name="sugar_drinks" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"  required>
+                            <p class="text-red-500 text-xs mt-1 hidden">请输入每日含糖饮料的摄入量。</p>
                         </div>
-                        <!-- Cancer Specific -->
-                        <div class="form-group hidden" data-prediction-type="cancer">
-                            <label for="carcinogen_exposure" class="block text-sm font-medium text-gray-700 mb-1">职业致癌物暴露史</label>
-                            <select id="carcinogen_exposure" name="carcinogen_exposure" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        <!-- dyslipidemia Specific -->
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
+                            <label for="bmi" class="block text-sm font-medium text-gray-700 mb-1">身体质量指数 (BMI)</label>
+                            <input type="number" id="bmi" name="bmi" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: 18.5-24.9" min="15" max="50" required>
+                            <p class="text-red-500 text-xs mt-1 hidden">请输入BMI指数。</p>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
+                            <label for="cholesterol" class="block text-sm font-medium text-gray-700 mb-1">血总胆固醇 (mg/dL)</label>
+                            <input type="number" id="cholesterol" name="cholesterol" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"  placeholder="正常范围: < 200" min="100" max="400" required>
+                            <p class="text-red-500 text-xs mt-1 hidden">请输入血总胆固醇。</p>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
+                            <label for="triglycerides" class="block text-sm font-medium text-gray-700 mb-1">甘油三酯 (mg/dL)</label>
+                            <input type="number" id="triglycerides" name="triglycerides" step="0.1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: < 150" min="30" max="500"  required>
+                            <p class="text-red-500 text-xs mt-1 hidden">请输入甘油三酯。</p>
+                        </div>
+                        <!-- osteoarthritis Specific -->
+                        <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="bmi" class="block text-sm font-medium text-gray-700 mb-1">身体质量指数 (BMI)</label>
+                            <input type="number" step="0.1" id="bmi" name="bmi" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: 18.5-24.9" min="15" max="50" required>
+                            <p class="text-red-500 text-xs mt-1 hidden">身体质量指数 (BMI)。</p>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="shuangxi" class="block text-sm font-medium text-gray-700 mb-1">双膝/髋/手指晨僵 ≤30 min且活动后减轻？</label>
+                            <select id="shuangxi" name="shuangxi" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                                 <option value="1">是</option>
                                 <option value="0">否</option>
                             </select>
                         </div>
-                        <div class="form-group hidden" data-prediction-type="cancer">
-                            <label for="chronic_inflammation" class="block text-sm font-medium text-gray-700 mb-1">慢性炎症史 (如胃炎、肝炎)</label>
-                            <select id="chronic_inflammation" name="chronic_inflammation" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
-                                <option value="1">是</option>
-                                <option value="0">否</option>
-                            </select>
-                        </div>
-                        <!-- Respiratory Specific -->
-                        <div class="form-group hidden" data-prediction-type="respiratory">
-                            <label for="fev1" class="block text-sm font-medium text-gray-700 mb-1">第一秒用力呼气量 (FEV1)</label>
-                            <input type="number" step="0.1" id="fev1" name="fev1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="正常范围: 1-6 L" min="1" max="6" required>
-                            <p class="text-red-500 text-xs mt-1 hidden">请输入FEV1值。</p>
-                        </div>
-                        <div class="form-group hidden" data-prediction-type="respiratory">
-                            <label for="asthma_history" class="block text-sm font-medium text-gray-700 mb-1">是否有哮喘病史？</label>
-                            <select id="asthma_history" name="asthma_history" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="zhongda" class="block text-sm font-medium text-gray-700 mb-1">关节曾肿大、变形或拍片提示“骨赘”？</label>
+                            <select id="zhongda" name="zhongda" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                                 <option value="1">是</option>
                                 <option value="0">否</option>
                             </select>
@@ -279,21 +342,55 @@
                 <div id="step-3" class="form-step">
                     <h3 class="text-xl font-semibold text-gray-800 mb-6">第三步：生活习惯</h3>
                     <div class="space-y-4">
-                        <!-- Common for all -->
-                        <div class="form-group" data-prediction-type="cardiovascular diabetes cancer respiratory">
-                            <label for="smoking" class="block text-sm font-medium text-gray-700 mb-1">您是否吸烟？</label>
-                            <select id="smoking" name="smoking" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        <!-- cardiovascular Specific -->
+                        <div class="form-group hidden" data-prediction-type="cardiovascular">
+                            <label for="aoye" class="block text-sm font-medium text-gray-700 mb-1">您是否长期熬夜？</label>
+                            <select id="aoye" name="aoye" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                                 <option value="1">是</option>
                                 <option value="0">否</option>
                             </select>
                         </div>
-                        <div class="form-group" data-prediction-type="cardiovascular diabetes">
+                        <div class="form-group hidden" data-prediction-type="cardiovascular">
+                            <label for="dahan" class="block text-sm font-medium text-gray-700 mb-1">您是否打鼾明显或曾被诊断阻塞性睡眠呼吸暂停？</label>
+                            <select id="dahan" name="dahan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="cardiovascular">
+                            <label for="qingxu" class="block text-sm font-medium text-gray-700 mb-1">您是否情绪紧张/焦虑：过去1个月 ≥3次因压力失眠或易怒？</label>
+                            <select id="qingxu" name="qingxu" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="cardiovascular">
                             <label for="exercise" class="block text-sm font-medium text-gray-700 mb-1">每周运动频率（天）</label>
                             <input type="number" id="exercise" name="exercise" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="请输入0-7之间的数字" min="0" max="7" required>
                             <p class="text-red-500 text-xs mt-1 hidden">请输入每周运动频率。</p>
                         </div>
-                        <!-- Cancer Specific -->
-                        <div class="form-group hidden" data-prediction-type="cancer">
+                        <!-- diabetes Specific -->
+                        <div class="form-group hidden" data-prediction-type="diabetes">
+                            <label for="exercise" class="block text-sm font-medium text-gray-700 mb-1">每周运动频率（天）</label>
+                            <input type="number" id="exercise" name="exercise" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="请输入0-7之间的数字" min="0" max="7" required>
+                            <p class="text-red-500 text-xs mt-1 hidden">请输入每周运动频率。</p>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="diabetes">
+                            <label for="yichang" class="block text-sm font-medium text-gray-700 mb-1">高血压或血脂异常？</label>
+                            <select id="yichang" name="yichang" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="diabetes">
+                            <label for="pizheng" class="block text-sm font-medium text-gray-700 mb-1">黑棘皮征：颈部/腋下皮肤发黑粗糙？</label>
+                            <select id="pizheng" name="pizheng" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <!-- dyslipidemia Specific -->
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
                             <label for="alcohol_consumption" class="block text-sm font-medium text-gray-700 mb-1">饮酒频率</label>
                             <select id="alcohol_consumption" name="alcohol_consumption" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                                 <option value="0">从不</option>
@@ -301,17 +398,45 @@
                                 <option value="2">经常</option>
                             </select>
                         </div>
-                        <!-- Respiratory Specific -->
-                        <div class="form-group hidden" data-prediction-type="respiratory">
-                            <label for="air_pollution_exposure" class="block text-sm font-medium text-gray-700 mb-1">是否长期暴露于空气污染环境？</label>
-                            <select id="air_pollution_exposure" name="air_pollution_exposure" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
+                            <label for="zhifang" class="block text-sm font-medium text-gray-700 mb-1">是否每日吃反式脂肪（奶茶、植脂末、人造奶油）？</label>
+                            <select id="zhifang" name="zhifang" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                                 <option value="1">是</option>
                                 <option value="0">否</option>
                             </select>
                         </div>
-                         <div class="form-group hidden" data-prediction-type="respiratory">
-                            <label for="chronic_cough" class="block text-sm font-medium text-gray-700 mb-1">是否有慢性咳嗽症状？</label>
-                            <select id="chronic_cough" name="chronic_cough" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
+                            <label for="xiyan" class="block text-sm font-medium text-gray-700 mb-1">是否吸烟>5年？</label>
+                            <select id="xiyan" name="xiyan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="dyslipidemia">
+                            <label for="jiazhuanxian" class="block text-sm font-medium text-gray-700 mb-1">是否甲状腺功能减退或慢性肾病？</label>
+                            <select id="jiazhuanxian" name="jiazhuanxian" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <!-- osteoarthritis Specific -->
+                        <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="shanglou" class="block text-sm font-medium text-gray-700 mb-1">上下楼或蹲起时关节痛 ≥3个月？</label>
+                            <select id="shanglou" name="shanglou" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                         <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="zhiye" class="block text-sm font-medium text-gray-700 mb-1">职业或运动导致关节负重大（搬运、爬山、长跑）≥5年？</label>
+                            <select id="zhiye" name="zhiye" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" data-prediction-type="osteoarthritis">
+                            <label for="palou" class="block text-sm font-medium text-gray-700 mb-1">经常爬楼梯 ≥10层/日或深蹲 ≥50次/日？</label>
+                            <select id="palou" name="palou" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                                 <option value="1">是</option>
                                 <option value="0">否</option>
                             </select>
@@ -330,7 +455,8 @@
     </section>
 
     <!-- Prediction Result -->
-    <section id="result-section" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 hidden">
+    <section id="result-section" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 hidden relative">
+        <img src="xiaotieshi.jpeg" alt="健康贴士" class="tips-float">
         <div class="bg-white rounded-xl shadow-lg p-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">风险评估报告</h2>
             
@@ -355,6 +481,19 @@
                 <h3 class="text-xl font-semibold text-gray-800 mb-4">个性化健康建议</h3>
                 <div id="health-suggestions" class="space-y-3 text-gray-700">
                     <!-- Suggestions will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- 免责声明和指南链接 -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <h4 class="font-semibold text-yellow-800 mb-2">⚠️ 重要免责声明</h4>
+                    <p class="text-sm text-yellow-700 mb-3">
+                        以上问卷仅用于健康筛查，不能替代医生面诊与实验室检查；如有阳性条目或症状，请及时就医。
+                    </p>
+                    <div id="guideline-links" class="text-sm text-blue-600">
+                        <!-- 指南链接将根据预测类型动态显示 -->
+                    </div>
                 </div>
             </div>
 

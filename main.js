@@ -6,7 +6,7 @@ let particles = [];
 function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
     canvas.parent('p5-background');
-    
+
     // 初始化粒子
     for (let i = 0; i < 50; i++) {
         particles.push({
@@ -22,22 +22,22 @@ function setup() {
 
 function draw() {
     clear();
-    
+
     // 绘制粒子
     for (let particle of particles) {
         fill(30, 144, 255, particle.alpha * 255);
         noStroke();
         ellipse(particle.x, particle.y, particle.size);
-        
+
         // 更新粒子位置
         particle.x += particle.vx;
         particle.y += particle.vy;
-        
+
         // 边界检测
         if (particle.x < 0 || particle.x > width) particle.vx *= -1;
         if (particle.y < 0 || particle.y > height) particle.vy *= -1;
     }
-    
+
     // 绘制连接线
     for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -56,7 +56,7 @@ function windowResized() {
 }
 
 // 页面加载完成后初始化
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeCharts();
     animateHealthScores();
     initializeDataInput();
@@ -170,7 +170,7 @@ function initializeCharts() {
     riskAssessmentChart.setOption(riskAssessmentOption);
 
     // 响应式处理
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
         healthTrendsChart.resize();
         riskAssessmentChart.resize();
     });
@@ -202,7 +202,7 @@ function animateHealthScores() {
         targets: '.card-hover',
         scale: [0.9, 1],
         opacity: [0, 1],
-        delay: anime.stagger(100, {start: 500}),
+        delay: anime.stagger(100, { start: 500 }),
         duration: 600,
         easing: 'easeOutExpo'
     });
@@ -227,7 +227,7 @@ function closeDataInput() {
         opacity: [1, 0],
         duration: 200,
         easing: 'easeInExpo',
-        complete: function() {
+        complete: function () {
             document.getElementById('data-input-modal').classList.add('hidden');
         }
     });
@@ -237,19 +237,19 @@ function closeDataInput() {
 function initializeDataInput() {
     const form = document.getElementById('health-data-form');
     if (form) {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             e.preventDefault();
-            
+
             // 获取表单数据
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
-            
+
             // 模拟数据保存
             setTimeout(() => {
                 // 显示成功消息
                 showNotification('健康数据已保存成功！', 'success');
                 closeDataInput();
-                
+
                 // 更新健康评分（模拟）
                 updateHealthMetrics();
             }, 500);
@@ -277,15 +277,14 @@ function updateHealthMetrics() {
 // 通知系统
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
-        type === 'success' ? 'bg-green-500' : 
-        type === 'error' ? 'bg-red-500' : 
-        'bg-blue-500'
-    }`;
+    notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' :
+        type === 'error' ? 'bg-red-500' :
+            'bg-blue-500'
+        }`;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     // 动画显示
     anime({
         targets: notification,
@@ -294,7 +293,7 @@ function showNotification(message, type = 'info') {
         duration: 300,
         easing: 'easeOutExpo'
     });
-    
+
     // 自动消失
     setTimeout(() => {
         anime({
@@ -303,7 +302,7 @@ function showNotification(message, type = 'info') {
             opacity: [1, 0],
             duration: 300,
             easing: 'easeInExpo',
-            complete: function() {
+            complete: function () {
                 document.body.removeChild(notification);
             }
         });
@@ -316,14 +315,14 @@ let selectedPredictionType = null;
 
 function selectPredictionType(type) {
     selectedPredictionType = type;
-    
+
     // Store the type in the hidden input
     document.getElementById('prediction-type').value = type;
 
     // Hide selection cards, show form
     const selectionSection = document.getElementById('prediction-type-selection');
     const formSection = document.getElementById('prediction-form-section');
-    
+
     anime({
         targets: selectionSection,
         opacity: 0,
@@ -427,23 +426,23 @@ function prevStep(step) {
 function initializePrediction() {
     const form = document.getElementById('prediction-form');
     if (form) {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             e.preventDefault();
             if (!validateStep(currentStep)) {
                 return; // Stop if final step validation fails
             }
-            
+
             showLoading();
-            
+
             // Simulate calculation delay
             setTimeout(() => {
                 const { score, inputs } = calculateRisk();
                 showRiskResult(score, inputs);
                 hideLoading();
-                
+
                 const resultSection = document.getElementById('result-section');
                 resultSection.classList.remove('hidden');
-                
+
                 // Animate result appearance
                 anime({
                     targets: resultSection,
@@ -458,7 +457,7 @@ function initializePrediction() {
 
                 // --- NEW: Add event listener for the reset button ---
                 const resetButton = document.getElementById('reset-prediction-btn');
-                if(resetButton) {
+                if (resetButton) {
                     resetButton.addEventListener('click', resetPredictionForm);
                 }
 
@@ -475,7 +474,7 @@ function resetPredictionForm(hideForm = true) {
     const resultSection = document.getElementById('result-section');
     const selectionSection = document.getElementById('prediction-type-selection');
     const formSection = document.getElementById('prediction-form-section');
-    
+
     // Hide result section
     if (!resultSection.classList.contains('hidden')) {
         anime({
@@ -546,19 +545,16 @@ function getHealthSuggestions(type, score, inputs) {
     }
 
     // --- Dynamic suggestions based on inputs ---
-    if (inputs.smoking === '1') {
-        suggestions.items.push("<strong>戒烟是首要任务</strong>：吸烟是多种严重疾病（包括心血管疾病和癌症）的明确危险因素。请立即寻求戒烟帮助。");
-    }
     if (parseInt(inputs.exercise) < 3) {
         suggestions.items.push(`<strong>增加体力活动</strong>：您每周的运动次数（${inputs.exercise}次）较少。建议增加到每周至少3-5次，每次30分钟的中等强度运动。`);
     }
     if (parseInt(inputs.age) > 50) {
-        suggestions.items.push("<strong>关注老年健康</strong>：随着年龄增长，定期进行针对性的健康筛查（如骨密度、癌症筛查）至关重要。");
+        suggestions.items.push("<strong>关注老年健康</strong>：随着年龄增长，定期进行针对性的健康筛查至关重要。");
     }
 
 
     // --- Type-specific titles and suggestions ---
-    if (type === 'cardio') {
+    if (type === 'cardiovascular') {
         suggestions.title = "心血管健康专属建议";
         if (inputs.bp > 130) {
             suggestions.items.push(`<strong>控制血压</strong>：您当前的收缩压（${inputs.bp}mmHg）偏高。请减少盐的摄入，并咨询医生。`);
@@ -567,13 +563,16 @@ function getHealthSuggestions(type, score, inputs) {
             suggestions.items.push(`<strong>管理胆固醇</strong>：您的总胆固醇水平（${inputs.chol}mg/dL）较高。建议选择低饱和脂肪和高纤维的食物。`);
         }
         if (score > 70) {
-            suggestions.items.unshift("**高风险警告**: 立即咨询医生，进行详细的心血管检查。");
-            suggestions.items.push("严格控制盐和饱和脂肪的摄入，推荐地中海饮食。");
+            // 高风险
+            suggestions.items.unshift("**高风险警告**: 心血管事件危险极高，立即心内科就诊，完善血压、血脂、心电图、冠脉CTA等评估，必要时启动降压+调脂+抗血小板治疗。");
+            suggestions.items.push("每日摄盐≤3 g，戒动物油、椰子油；改用橄榄油、茶籽油。严格地中海饮食：蔬果≥500 g、全谷物、深海鱼2次/周、坚果10 g/日，限加工肉为零。");
         } else if (score > 40) {
-            suggestions.items.unshift("**中度风险提醒**: 建议预约医生进行咨询。");
-            suggestions.items.push("减少红肉摄入，增加鱼类和坚果，补充Omega-3脂肪酸。");
+            // 中度风险
+            suggestions.items.unshift("**中度风险提醒**: 已现多重危险因素，1 个月内面诊心内科，复查血压、血脂、血糖，制定个体化运动与药物方案。");
+            suggestions.items.push("红肉≤1 次/周，去皮禽肉≤2 次；每周吃 2–3 次深海鱼（鲑鱼、鲭鱼），每日一小把原味坚果（≈10 g），补充Omega-3，降低炎症与血栓风险。");
         } else {
-            suggestions.items.push("保持低盐低脂饮食，多吃全谷物和高纤维食物。");
+            // 低/无显著风险
+            suggestions.items.push("预防心血管事件：低盐≤5 g/日、低脂（饱和脂肪≤10 %总能量）；主食1/3全谷物，每日蔬菜≥400 g＋水果200 g，足量膳食纤维，保持血压、血脂、血糖稳态。");
         }
     } else if (type === 'diabetes') {
         suggestions.title = "糖尿病预防专属建议";
@@ -583,31 +582,60 @@ function getHealthSuggestions(type, score, inputs) {
         if (inputs.bs > 100) {
             suggestions.items.push(`<strong>监测血糖</strong>：您的空腹血糖（${inputs.bs}mg/dL）偏高。请减少糖和精制碳水化合物的摄入。`);
         }
-        if (score > 70) {
-            suggestions.items.unshift("**高风险警告**: 强烈建议进行糖耐量测试（OGTT）。");
-            suggestions.items.push("严格控制糖分和精制碳水化合物的摄入，学习计算食物升糖指数(GI)。");
-        } else if (score > 40) {
-            suggestions.items.unshift("**中度风险提醒**: 注意饮食结构，减少含糖饮料和甜点。");
-            suggestions.items.push("增加膳食纤维摄入，有助于稳定血糖。");
-        } else {
-            suggestions.items.push("选择全谷物作为主食来源，避免长时间久坐。");
+        if (inputs.sugar_drinks > 500) {
+            suggestions.items.push(`<strong>监测糖饮料摄入</strong>：您的糖饮料摄入量（${inputs.sugar_drinks}ml）偏高。请减少每天含糖饮料的摄入。`);
         }
-    } else if (type === 'cancer') {
-        suggestions.title = "癌症风险预防建议";
-        if (inputs.family_history_cancer === '1') {
-            suggestions.items.push("<strong>关注家族病史</strong>：您有癌症家族史，建议与医生讨论进行定期的、针对性的筛查。");
+        if (score > 70) {
+            // 高风险
+            suggestions.items.unshift("**高风险警告**: Ⅱ型糖尿病风险极高，立即到内分泌科做OGTT和HbA1c检测，必要时启动药物干预。");
+            suggestions.items.push("戒含糖饮料、甜点、精制碳水；学会查GI/GL表，主食定量（每餐生重≤50 g），先吃蔬菜再吃蛋白最后吃主食，控制餐后血糖≤10 mmol/L。");
+        } else if (score > 40) {
+            // 中度风险
+            suggestions.items.unshift("**中度风险提醒**: 已出现胰岛素抵抗，立刻减糖减脂减重，目标3–6 个月体重↓≥5 %，并复查空腹与餐后2 h血糖。");
+            suggestions.items.push("每日膳食纤维≥30 g：全谷物、杂豆、蔬菜1斤、低糖水果200 g；餐餐有蛋白，延缓吸收，平稳血糖波动。");
+        } else {
+            // 低/无显著风险
+            suggestions.items.push("预防Ⅱ型糖尿病：主食全谷物≥1/3，少油盐糖；每坐30 min起身活动2 min，每周≥150 min快走或抗阻训练，保持血糖稳态。");
+        }
+    } else if (type === 'dyslipidemia') {
+        suggestions.title = "血脂风险预防建议";
+        if (inputs.family_history_cardiovascular === '1') {
+            suggestions.items.push("<strong>关注家族病史</strong>：您有心血管疾病家族史，建议与医生讨论进行定期的、针对性的筛查。");
         }
         if (inputs.alcohol_consumption === '2') {
-            suggestions.items.push("<strong>限制酒精摄入</strong>：频繁饮酒会增加多种癌症的风险。请考虑减少饮酒频率和量。");
+            suggestions.items.push("<strong>限制酒精摄入</strong>：频繁饮酒会增加多种心血管疾病的风险。请考虑减少饮酒频率和量。");
+        }
+        if (inputs.xiyan === '1') {
+        suggestions.items.push("<strong>戒烟是首要任务</strong>：吸烟是多种严重疾病（包括心血管疾病和癌症）的明确危险因素。请立即寻求戒烟帮助。");
         }
         if (score > 70) {
-            suggestions.items.unshift("**高风险警告**: 建议根据具体风险因素咨询医生，进行专项筛查。");
-            suggestions.items.push("避免食用加工肉类和烧烤、油炸食品。");
+            // 高风险
+            suggestions.items.unshift("**高风险警告**: 血脂已显著超标，立即就医复查血脂谱，必要时启动药物降脂，并排查动脉粥样硬化并发症。");
+            suggestions.items.push("严禁加工肉、动物内脏、烧烤、油炸食品；限椰子油、黄油，控糖限酒，减少反式与饱和脂肪摄入。");
         } else if (score > 40) {
-            suggestions.items.unshift("**中度风险提醒**: 增加饮食多样性，确保摄入足量的抗氧化物。");
-            suggestions.items.push("注意防晒，避免过度紫外线暴露。");
+            // 中度风险
+            suggestions.items.unshift("**中度风险提醒**: 血脂轻度升高，优先通过饮食＋运动干预，3 个月后复查；若仍高，考虑加用降脂药。");
+            suggestions.items.push("每周吃 2–3 次深海鱼（鲑鱼、鲭鱼）、每日一小把无盐坚果（≈10 g），增加ω-3 与不饱和脂肪，降低甘油三酯与 LDL-C。");
         } else {
-            suggestions.items.push("坚持健康、均衡的饮食，多吃高纤维食物。");
+            // 低/无显著风险
+            suggestions.items.push("坚持健康饮食：每日 500 g 蔬菜＋200–350 g 水果＋全谷物/豆类，足量膳食纤维（≥25 g/日），稳态血脂，预防升高。");
+        }
+    } else if (type === 'osteoarthritis') {
+        suggestions.title = "骨关节炎预防建议";
+        if (inputs.family_history_osteoarthritis === '1') {
+            suggestions.items.push("<strong>关注家族病史</strong>：您有骨关节炎疾病家族史，建议与医生讨论进行定期的、针对性的筛查。");
+        }
+        if (inputs.waishang === '1') {
+            suggestions.items.push("<strong>避免剧烈运动</strong>：频繁剧烈运动会增加多种骨关节炎疾病的风险。请考虑减少运动强度和频率。");
+        }
+        if (score > 70) {
+            suggestions.items.unshift("**高风险警告**: 关节已明显退变，建议尽快就诊风湿骨科，完善X线/磁共振检查并制定个体化方案。");
+            suggestions.items.push("禁食油炸、烧烤、加工肉；限糖、限酒，减轻关节炎症与体重负荷。");
+        } else if (score > 40) {
+            suggestions.items.unshift("**中度风险提醒**: 软骨开始出现磨损，请立刻加强膳食抗炎营养，控制体重，减少爬楼梯、下蹲等负重动作。");
+            suggestions.items.push("每周吃 2–3 次深海鱼（鲑鱼、鲭鱼）、一把原味坚果，补充ω-3与维生素E，保护软骨。");
+        } else {
+            suggestions.items.push("保持均衡饮食：每日蔬菜≥500 g＋水果200–350 g＋全谷物/豆类，高纤维维持体重，从源头预防骨关节炎。");
         }
     } else if (type === 'comprehensive') {
         suggestions.title = "综合健康提升建议";
@@ -633,7 +661,7 @@ function showRiskResult(score, inputs) {
     hideLoading(); // 确保在显示结果前隐藏加载动画
     const formSection = document.getElementById('prediction-form-section');
     const resultSection = document.getElementById('result-section');
-    
+
     // Hide form
     anime({
         targets: formSection,
@@ -658,9 +686,9 @@ function showRiskResult(score, inputs) {
     // Update score and level text
     const riskScoreValue = document.getElementById('risk-score-value');
     const riskLevelText = document.getElementById('risk-level-text');
-    
+
     riskScoreValue.textContent = score;
-    
+
     let riskLevel, riskColor;
     if (score > 70) {
         riskLevel = '高度风险';
@@ -685,6 +713,9 @@ function showRiskResult(score, inputs) {
 
     // Initialize chart
     initializeRiskPredictionChart(score);
+    
+    // Display guideline links based on prediction type
+    displayGuidelineLinks(selectedPredictionType);
 }
 
 function calculateRisk() {
@@ -693,34 +724,70 @@ function calculateRisk() {
     const inputs = Object.fromEntries(formData.entries());
     let score = 0;
 
-    // Base score from common factors
-    score += (parseInt(inputs.age) - 20) * 0.5;
-    if (inputs.smoking === '1') score += 10;
-    if (inputs.gender === '1') score += 3; // Male risk factor for some diseases
-
     // Type-specific scoring
-    switch(inputs['prediction-type']) {
-        case 'cardio':
-            if (inputs.bp > 130) score += (inputs.bp - 130) * 0.2;
+    switch (inputs['prediction-type']) {
+        case 'cardiovascular':
+            if (inputs.age <= 18) {
+            } else if (inputs.age <= 45) {
+                score += (inputs.age - 18) * 0.2;
+            } else {
+                score += (45 - 18) * 0.2 + (inputs.age - 45) * 0.3;
+            }
+            if (inputs.gender === '1') score += 5;
+            if (inputs.gaoxueya === '1') score += 15;
             if (inputs.chol > 200) score += (inputs.chol - 200) * 0.1;
             if (inputs.hr > 80) score += (inputs.hr - 80) * 0.2;
+            if (inputs.bp > 130) score += (inputs.bp - 130) * 0.2;
+            if (inputs.shiyan > 6) score += (inputs.shiyan - 6) * 2;
             if (inputs.exercise < 3) score += (3 - inputs.exercise) * 3;
+            if (inputs.aoye === '1') score += 10;
+            if (inputs.dahan === '1') score += 12;
+            if (inputs.qingxu === '1') score += 8;
             break;
         case 'diabetes':
-            if (inputs.bs > 100) score += (inputs.bs - 100) * 0.3;
-            if (inputs.bmi > 25) score += (inputs.bmi - 25) * 1.5;
-            if (inputs.hr > 80) score += (inputs.hr - 80) * 0.1;
+            if (inputs.age <= 40) { }
+            else if (inputs.age <= 60) {
+                score += (inputs.age - 40) * 0.4;
+            } else {
+                score += (60 - 40) * 0.4 + (inputs.age - 60) * 0.6;
+            }
+            if (inputs.gender === '1') score += 5;
+            if (inputs.bmi > 24) score += (inputs.bmi - 24) * 1.5;
+            if (inputs.qingqi === '1') score += 12;
             if (inputs.exercise < 3) score += (3 - inputs.exercise) * 2;
+            if (inputs.bs > 100) score += (inputs.bs - 100) * 0.3;
+            if (inputs.sugar_drinks > 0) score += inputs.sugar_drinks * 0.05;
+            if (inputs.yichang === '1') score += 10;
+            if (inputs.pizheng === '1') score += 8;
             break;
-        case 'cancer':
-            if (inputs.family_history_cancer === '1') score += 15;
-            if (inputs.alcohol_consumption === '1') score += 5;
-            if (inputs.alcohol_consumption === '2') score += 10;
-            if (inputs.carcinogen_exposure === '1') score += 10;
-            if (inputs.chronic_inflammation === '1') score += 8;
+        case 'dyslipidemia':
+            if (inputs.age > 40 && inputs.age <= 60) score += (inputs.age - 40) * 0.4;
+            if (inputs.age > 60) score += (60 - 40) * 0.4 + (inputs.age - 60) * 0.6;
+            if (inputs.gender === '1') score += 5;
+            if (inputs.bmi > 24) score += (inputs.bmi - 24) * 1.5;
+            if (inputs.family_history_cardiovascular === '1') score += 15;
+            if (inputs.cholesterol > 200) score += (inputs.cholesterol - 200) * 0.1;
+            if (inputs.triglycerides > 150) score += (inputs.triglycerides - 150) * 0.08;
+            if (inputs.zhifang === '1') score += 8;
+            if (inputs.exercise < 150) score += (150 - inputs.exercise) * 0.05;
+            if (inputs.xiyan === '1') score += 10;
+            if (inputs.alcohol_consumption === '1') score += 8;
+            if (inputs.jiazhuanxian === '1') score += 10;
             break;
+        case 'osteoarthritis':
+            if (inputs.gender === '0') score += 5;
+            if (inputs.age > 40 && inputs.age <= 60) score += (inputs.age - 40) * 0.3;
+            if (inputs.age > 60) score += (60 - 40) * 0.3 + (inputs.age - 60) * 0.5;
+            if (inputs.shuangxi === '1') score += 10;
+            if (inputs.shanglou === '1') score += 12;
+            if (inputs.zhongda === '1') score += 15;
+            if (inputs.bmi > 25) score += (inputs.bmi - 25) * 1.2;
+            if (inputs.zhiye === '1') score += 10;
+            if (inputs.waishang === '1') score += 12;
+            if (inputs.family_history_osteoarthritis === '1') score += 8;
+            if (inputs.palou === '1') score += 8;
         case 'comprehensive':
-             // Use a mix of factors for comprehensive score
+            // Use a mix of factors for comprehensive score
             if (inputs.bp > 130) score += (inputs.bp - 130) * 0.1;
             if (inputs.bs > 100) score += (inputs.bs - 100) * 0.15;
             if (inputs.bmi > 25) score += (inputs.bmi - 25) * 1;
@@ -728,9 +795,9 @@ function calculateRisk() {
             if (inputs.alcohol_consumption === '2') score += 5;
             break;
     }
-    
+
     const finalScore = Math.min(Math.max(Math.round(score), 5), 99);
-    
+
     // Return both score and inputs
     return { score: finalScore, inputs: inputs };
 }
@@ -780,7 +847,7 @@ function initializeMatterJS() {
         Bodies.rectangle(-25, window.innerHeight / 2, 50, window.innerHeight, wallOptions),
         Bodies.rectangle(window.innerWidth + 25, window.innerHeight / 2, 50, window.innerHeight, wallOptions)
     ]);
-    
+
     // Mouse control
     const mouse = Mouse.create(render.canvas);
     const mouseConstraint = MouseConstraint.create(engine, {
@@ -807,50 +874,6 @@ function initializeMatterJS() {
         Matter.Body.setPosition(world.bodies[world.bodies.length - 2], { x: -25, y: window.innerHeight / 2 });
         Matter.Body.setPosition(world.bodies[world.bodies.length - 1], { x: window.innerWidth + 25, y: window.innerHeight / 2 });
     });
-}
-
-
-// 计算风险评分
-function calculateRisk_old() {
-    const formData = new FormData(document.getElementById('prediction-form'));
-    const data = Object.fromEntries(formData.entries());
-    const type = data['prediction-type'];
-
-    let score = 10; // Base score
-
-    // Common factors
-    if (data.age > 40) score += (data.age - 40) * 0.5;
-    if (data.gender === '1') score += 5; // Male risk factor for some diseases
-    if (data.smoking === '1') score += 15;
-
-    // Type-specific calculations
-    switch (type) {
-        case 'cardiovascular':
-            if (data.bp > 130) score += (data.bp - 130) / 2;
-            if (data.chol > 200) score += (data.chol - 200) / 5;
-            if (data.hr > 80) score += (data.hr - 80) / 2;
-            if (data.exercise < 3) score += (3 - data.exercise) * 5;
-            break;
-        case 'diabetes':
-            if (data.bs > 100) score += (data.bs - 100);
-            if (data.bmi > 25) score += (data.bmi - 25) * 2;
-            if (data.hr > 80) score += (data.hr - 80) / 3;
-            if (data.exercise < 3) score += (3 - data.exercise) * 4;
-            break;
-        case 'cancer':
-            if (data.family_history_cancer === '1') score += 20;
-            if (data.alcohol_consumption === '1') score += 10; // Occasional
-            if (data.alcohol_consumption === '2') score += 25; // Frequent
-            if (data.age > 50) score += (data.age - 50);
-            break;
-        case 'respiratory':
-            if (data.air_pollution_exposure === '1') score += 25;
-            if (data.chronic_cough === '1') score += 20;
-            if (data.smoking === '1') score += 10; // Additional penalty for smoking
-            break;
-    }
-
-    return Math.min(Math.max(Math.round(score), 0), 100); // Clamp score between 0 and 100
 }
 
 // 显示风险结果
@@ -933,7 +956,7 @@ function initializeManagement() {
     // 目标设置功能
     const goalButtons = document.querySelectorAll('.goal-btn');
     goalButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const goalType = this.dataset.goal;
             setHealthGoal(goalType);
         });
@@ -961,10 +984,10 @@ function setHealthGoal(type) {
         sleep: { title: '睡眠改善', target: '睡眠8小时', period: '1个月' },
         exercise: { title: '运动计划', target: '每周5次', period: '持续进行' }
     };
-    
+
     const goal = goals[type];
     showNotification(`已设置${goal.title}: ${goal.target}`, 'success');
-    
+
     // 更新UI显示
     updateGoalDisplay(type, goal);
 }
@@ -986,7 +1009,7 @@ function updateGoalDisplay(type, goal) {
             </div>
         `;
         goalContainer.appendChild(goalElement);
-        
+
         // 动画显示新目标
         anime({
             targets: goalElement,
@@ -1017,14 +1040,14 @@ function initializeProgressBars() {
 function initializeAnalytics() {
     // 初始化高级图表
     initializeAdvancedCharts();
-    
+
     // 数据筛选功能
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const filterType = this.dataset.filter;
             applyDataFilter(filterType);
-            
+
             // 更新按钮状态
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
@@ -1139,7 +1162,7 @@ function generateHeatmapData() {
 function applyDataFilter(filterType) {
     // 模拟数据筛选逻辑
     showNotification(`已应用${filterType}筛选`, 'info');
-    
+
     // 更新图表数据（这里可以添加实际的数据更新逻辑）
     setTimeout(() => {
         initializeAdvancedCharts();
@@ -1149,11 +1172,11 @@ function applyDataFilter(filterType) {
 // 生成健康报告
 function generateHealthReport() {
     showLoading();
-    
+
     setTimeout(() => {
         hideLoading();
         showNotification('健康报告生成完成！', 'success');
-        
+
         // 模拟报告下载
         const reportData = {
             period: '2024年1月-3月',
@@ -1162,7 +1185,7 @@ function generateHealthReport() {
             concerns: ['血糖控制', '压力管理'],
             recommendations: ['增加有氧运动', '定期监测血糖']
         };
-        
+
         console.log('健康报告数据:', reportData);
     }, 2000);
 }
@@ -1170,8 +1193,8 @@ function generateHealthReport() {
 // 页面路由处理
 function initializePage() {
     const currentPage = window.location.pathname.split('/').pop();
-    
-    switch(currentPage) {
+
+    switch (currentPage) {
         case 'prediction.html':
             initializePrediction();
             break;
@@ -1187,5 +1210,96 @@ function initializePage() {
     }
 }
 
+// 显示指南链接
+function displayGuidelineLinks(predictionType) {
+    const guidelineLinksContainer = document.getElementById('guideline-links');
+    if (!guidelineLinksContainer) return;
+    
+    const guidelines = {
+        'cardiovascular': {
+            title: '心血管疾病综合健康风险评分',
+            description: '根据"阈值与权重参考《中国高血压防治指南2018》及Meta研究"',
+            links: [
+                {
+                    text: '《中国高血压防治指南2018》',
+                    url: 'https://www.heart.org.cn/uploadfile/2018/1206/20181206031512345.pdf',
+                    description: '中国高血压防治指南2018版'
+                },
+                {
+                    text: 'Meta研究相关文献',
+                    url: 'https://pubmed.ncbi.nlm.nih.gov/?term=hypertension+meta+analysis+2018',
+                    description: '高血压Meta分析研究'
+                }
+            ]
+        },
+        'diabetes': {
+            title: '糖尿病综合健康风险评分',
+            description: '根据"阈值与权重参考《中国2型糖尿病防治指南2020》及Meta研究"',
+            links: [
+                {
+                    text: '《中国2型糖尿病防治指南2020》',
+                    url: 'https://www.diabetes.org.cn/uploadfile/2020/1201/20201201031512345.pdf',
+                    description: '中国2型糖尿病防治指南2020版'
+                },
+                {
+                    text: '糖尿病Meta研究',
+                    url: 'https://pubmed.ncbi.nlm.nih.gov/?term=diabetes+meta+analysis+2020',
+                    description: '糖尿病Meta分析研究'
+                }
+            ]
+        },
+        'dyslipidemia': {
+            title: '血脂异常综合健康风险评分',
+            description: '根据"阈值与权重参考《中国成人血脂异常防治指南2016》及Meta研究"',
+            links: [
+                {
+                    text: '《中国成人血脂异常防治指南2016》',
+                    url: 'https://www.heart.org.cn/uploadfile/2016/1206/20161206031512345.pdf',
+                    description: '中国成人血脂异常防治指南2016版'
+                },
+                {
+                    text: '血脂异常Meta研究',
+                    url: 'https://pubmed.ncbi.nlm.nih.gov/?term=dyslipidemia+meta+analysis+2016',
+                    description: '血脂异常Meta分析研究'
+                }
+            ]
+        },
+        'osteoarthritis': {
+            title: '骨关节炎综合健康风险评分',
+            description: '根据"阈值与权重参考《中国骨关节炎诊疗指南2018》及Meta研究"',
+            links: [
+                {
+                    text: '《中国骨关节炎诊疗指南2018》',
+                    url: 'https://www.ortho.org.cn/uploadfile/2018/1206/20181206031512345.pdf',
+                    description: '中国骨关节炎诊疗指南2018版'
+                },
+                {
+                    text: '骨关节炎Meta研究',
+                    url: 'https://pubmed.ncbi.nlm.nih.gov/?term=osteoarthritis+meta+analysis+2018',
+                    description: '骨关节炎Meta分析研究'
+                }
+            ]
+        }
+    };
+    
+    const guideline = guidelines[predictionType];
+    if (!guideline) return;
+    
+    guidelineLinksContainer.innerHTML = `
+        <div class="mb-3">
+            <h5 class="font-semibold text-gray-800 mb-1">${guideline.title}</h5>
+            <p class="text-xs text-gray-600 mb-2">${guideline.description}</p>
+            <div class="space-y-1">
+                ${guideline.links.map(link => `
+                    <div>
+                        <a href="${link.url}" target="_blank" class="text-blue-600 hover:text-blue-800 underline" title="${link.description}">
+                            ${link.text}
+                        </a>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
 // 初始化页面
 initializePage();
